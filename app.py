@@ -29,6 +29,7 @@ app = flask.Flask(__name__)
 sock = flask_sock.Sock(app)
 cors = flask_cors.CORS(app, resources={r"/*": {"origins": "*"}})
 check_and_fail_on_windows()
+
 @app.errorhandler(400)
 def bad_request_error(error):
     response = flask.jsonify({"error": "Bad Request"})
