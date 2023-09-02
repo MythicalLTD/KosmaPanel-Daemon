@@ -161,3 +161,6 @@ cython_debug/
 
 # Custom
 test.sh
+database.sqlite
+logs/
+data/
