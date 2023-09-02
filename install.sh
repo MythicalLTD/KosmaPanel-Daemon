@@ -1,6 +1,6 @@
 #!/bin/bash
 clear 
-echo "KosmaPanel daemon v0.1 Installation Script"
+echo "KosmaPanel Daemon v0.1 Installation Script"
 echo "Copyright © 2023 MythicalSystems."
 echo "For support join our community: https://discord.gg/7BZTmSK2D8"
 
@@ -14,7 +14,7 @@ read -p "Are you sure you want to continue? [y/n] " installation
 if [[ $installation == "y" || $installation == "Y" || $installation == "yes" || $installation == "Yes" ]]
 then
     sudo apt update -y
-    sudo apt --ignore-missing install git python3 python3-pip docker containerd docker.io -y
+    sudo apt --ignore-missing install apache2 git python3 python3-pip docker containerd docker.io -y
     python3 -m pip install flask flask_sock flask_cors docker waitress
     cd /etc
     sudo git clone https://github.com/MythicalLTD/KosmaPanel-Daemon.git KosmaPanel
@@ -27,6 +27,26 @@ then
     cp /etc/KosmaPanel/daemon.conf /etc/apache2/sites-available/daemon.conf
     sed -i "s/url/$domain/" /etc/apache2/sites-available/daemon.conf
     ln -s /etc/apache2/sites-available/daemon.conf /etc/apache2/sites-enabled/daemon.conf
+    rm -r /var/www/html
+    mkdir -p /var/www/html
+    mkdir -p /var/www/html/errors
+    cp /etc/KosmaPanel/templates/index.html /var/www/html
+    cp /etc/KosmaPanel/templates/400.html /var/www/html/errors
+    cp /etc/KosmaPanel/templates/403.html /var/www/html/errors
+    cp /etc/KosmaPanel/templates/404.html /var/www/html/errors
+    cp /etc/KosmaPanel/templates/500.html /var/www/html/errors
+    cp /etc/KosmaPanel/templates/503.html /var/www/html/errors
+    chown -R www-data:www-data /var/www/html/*
+    sudo chmod -R 755 /var/www/html/*
+    rm /etc/apache2/sites-available/000-default.conf
+    rm /etc/apache2/sites-enabled/000-default.conf
+    cp /etc/KosmaPanel/000-default.conf /etc/apache2/sites-available/000-default.conf
+    ln -s /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+    sudo a2enmod proxy
+    sudo a2enmod proxy_http
+    sudo a2enmod proxy_wstunnel
+    sudo a2enmod rewrite
+    sudo a2enmod ssl
     service apache2 start
     echo ""
     echo " --> Installation completed"
