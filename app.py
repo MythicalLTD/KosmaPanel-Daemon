@@ -9,6 +9,7 @@ import flask_cors
 import platform
 import psutil
 import cpuinfo
+import subprocess
 from logger import Logger, LogType
 logger = Logger()
 
@@ -32,6 +33,20 @@ def sqlquery(sql, *parameter):
     data = cursor.execute(sql, (parameter)).fetchall()
     conn.commit()
     return data
+
+def start_service(service_name):
+    subprocess.run(['sudo', 'systemctl', 'start', service_name])
+
+def stop_service(service_name):
+    subprocess.run(['sudo', 'systemctl', 'stop', service_name])
+
+def restart_service(service_name):
+    subprocess.run(['sudo', 'systemctl', 'restart', service_name])
+
+def check_service_status(service_name):
+    result = subprocess.run(['systemctl', 'is-active', service_name], capture_output=True, text=True)
+    status = result.stdout.strip()
+    return status
 
 os.chdir("/etc/KosmaPanel")
 
@@ -77,11 +92,65 @@ def internal_server_error(error):
     response.status_code = 500
     return response
 
+@app.errorhandler(503)
+def internal_server_error(error):
+    response = flask.jsonify({"error": "Internal Server Error"})
+    response.status_code = 503
+    return response
+
 @app.route("/")
 def main():
-    response = flask.jsonify({"succes": "node online"})
+    response = flask.jsonify({"success": "node online"})
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
+@app.route("/api/daemon/restart", methods=["POST"])
+def restart_daemon():
+    system_token = flask.request.form.get("system_token")
+    if not all([system_token]):
+        response = {
+            "error": "Missing required input parameters",
+        }
+        return json.dumps(response), 400, {'Content-Type': 'application/json'}
+
+    if system_token == app.config["SYSTEM_TOKEN"]:
+        try:
+            restart_service("daemon")
+            response = {
+                "success": "Service restarted successfully",
+            }
+            return json.dumps(response), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            response = {
+                "error": str(e),
+            }
+            return json.dumps(response), 500, {'Content-Type': 'application/json'}
+    else:
+        flask.abort(401)
+
+@app.route("/api/daemon/shutdown", methods=["POST"])
+def shutdown_daemon():
+    system_token = flask.request.form.get("system_token")
+    if not all([system_token]):
+        response = {
+            "error": "Missing required input parameters",
+        }
+        return json.dumps(response), 400, {'Content-Type': 'application/json'}
+
+    if system_token == app.config["SYSTEM_TOKEN"]:
+        try:
+            stop_service("daemon")
+            response = {
+                "success": "Shutdown successfully",
+            }
+            return json.dumps(response), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            response = {
+                "error": str(e),
+            }
+            return json.dumps(response), 500, {'Content-Type': 'application/json'}
+    else:
+        flask.abort(401)
 
 @app.route("/api/daemon/info",methods=["POST"])
 def get_daemon_info():

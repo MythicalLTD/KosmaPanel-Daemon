@@ -19,6 +19,7 @@ then
     cd /etc
     sudo git clone https://github.com/MythicalLTD/KosmaPanel-Daemon.git KosmaPanel
     sudo mv /etc/KosmaPanel/daemon.service /etc/systemd/system/
+    sudo systemctl enable --now daemon.service
     echo "Installing apache2 config..."
 	clear
     read -p 'Enter your domain ( No IP ): '  domain
