@@ -1,6 +1,6 @@
 #!/bin/bash
 clear 
-echo "KosmaPanel Deamon v0.1 Installation Script"
+echo "KosmaPanel daemon v0.1 Installation Script"
 echo "Copyright © 2023 MythicalSystems."
 echo "For support join our community: https://discord.gg/7BZTmSK2D8"
 
@@ -18,15 +18,15 @@ then
     python3 -m pip install flask flask_sock flask_cors docker waitress
     cd /etc
     sudo git clone https://github.com/MythicalLTD/KosmaPanel-Daemon.git KosmaPanel
-    sudo mv /etc/KosmaPanel/deamon.service /etc/systemd/system/
+    sudo mv /etc/KosmaPanel/daemon.service /etc/systemd/system/
     echo "Installing apache2 config..."
 	clear
     read -p 'Enter your domain ( No IP ): '  domain
     service apache2 stop
     certbot certonly --standalone -d $domain
-    cp /etc/KosmaPanel/deamon.conf /etc/apache2/sites-available/deamon.conf
-    sed -i "s/url/$domain/" /etc/apache2/sites-available/deamon.conf
-    ln -s /etc/apache2/sites-available/deamon.conf /etc/apache2/sites-available/deamon.conf
+    cp /etc/KosmaPanel/daemon.conf /etc/apache2/sites-available/daemon.conf
+    sed -i "s/url/$domain/" /etc/apache2/sites-available/daemon.conf
+    ln -s /etc/apache2/sites-available/daemon.conf /etc/apache2/sites-available/daemon.conf
     service apache2 start
     echo ""
     echo " --> Installation completed"
