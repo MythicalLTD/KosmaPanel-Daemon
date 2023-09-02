@@ -1,6 +1,19 @@
-import flask, os, sqlite3, docker, sys, flask_sock, json, flask_cors, time
+import flask 
+import os 
+import sqlite3 
+import docker 
+import sys
+import flask_sock
+import json
+import flask_cors
+import platform
 from logger import Logger, LogType
 logger = Logger()
+
+def check_and_fail_on_windows():
+    if platform.system() == "Windows":
+        Logger.log(LogType.Error , "This script cannot run on Windows.")
+        sys.exit(1)
 
 def sqlquery(sql, *parameter):
     conn = sqlite3.connect("database.sqlite", check_same_thread=False)
@@ -15,7 +28,7 @@ client = docker.from_env()
 app = flask.Flask(__name__)
 sock = flask_sock.Sock(app)
 cors = flask_cors.CORS(app, resources={r"/*": {"origins": "*"}})
-
+check_and_fail_on_windows()
 @app.errorhandler(400)
 def bad_request_error(error):
     response = flask.jsonify({"error": "Bad Request"})
