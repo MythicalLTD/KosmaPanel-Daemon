@@ -7,8 +7,19 @@ import flask_sock
 import json
 import flask_cors
 import platform
+import psutil
+import cpuinfo
 from logger import Logger, LogType
 logger = Logger()
+
+def convert_bytes(bytes_value, to_unit):
+    if to_unit == "GB":
+        return int(bytes_value / (1024 ** 3)) 
+    elif to_unit == "MB":
+        return int(bytes_value / (1024 ** 2))  
+    else:
+        return bytes_value  
+
 
 def check_and_fail_on_windows():
     if platform.system() == "Windows":
@@ -72,7 +83,80 @@ def main():
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
+@app.route("/api/daemon/info",methods=["POST"])
+def get_daemon_info():
+    system_token = flask.request.form.get("system_token")
+    if not all([system_token]):
+        response = {
+            "error": "Missing required input parameters",
+        }
+        return json.dumps(response), 400, {'Content-Type': 'application/json'}
 
+    if system_token == app.config["SYSTEM_TOKEN"]:
+        try:
+            # Get the OS name
+            os_name = platform.system()
+            
+            # Get disk info
+            disk_info = psutil.disk_usage('/')
+
+            # Get RAM info
+            ram_info = psutil.virtual_memory()
+
+            # Get CPU info
+            cpu_info = cpuinfo.get_cpu_info()
+            cpu_name = cpu_info['brand_raw']
+            # Get kernel name
+            kernel_name = platform.uname().release
+            # Get ram
+            ram_total_mb = convert_bytes(ram_info.total, "MB")
+            ram_available_mb = convert_bytes(ram_info.available, "MB")
+            ram_used_mb = convert_bytes(ram_info.used, "MB")
+            ram_free_mb = convert_bytes(ram_info.free, "MB")
+            # Get disk
+            disk_total_gb = convert_bytes(disk_info.total, "GB")
+            disk_used_gb = convert_bytes(disk_info.used, "GB")
+            disk_free_gb = convert_bytes(disk_info.free, "GB")
+            uptime_seconds = int(psutil.boot_time())
+
+            #  Convert uptime to a human-readable format (days, hours, minutes)
+            uptime_minutes, uptime_seconds = divmod(uptime_seconds, 60)
+            uptime_hours, uptime_minutes = divmod(uptime_minutes, 60)
+            uptime_days, uptime_hours = divmod(uptime_hours, 24)
+            # Prepare the response as a JSON object
+            response = {
+                "os_type": os_name,
+                "kernel": kernel_name,
+                "uptime": {
+                    "days": uptime_days,
+                    "hours": uptime_hours,
+                    "minutes": uptime_minutes,
+                },
+                "disk_info": {
+                    "total": f"{disk_total_gb} GB",
+                    "used": f"{disk_used_gb} GB",
+                    "free": f"{disk_free_gb} GB",
+                },
+                "ram_info": {
+                    "total": f"{ram_total_mb} MB",
+                    "available": f"{ram_available_mb} MB",
+                    "used": f"{ram_used_mb} MB",
+                    "free": f"{ram_free_mb} MB",
+                },
+                "cpu_info": {
+                    "name": cpu_name,
+                }
+            }
+
+            return json.dumps(response), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            response = {
+                "error": str(e),
+            }
+            return json.dumps(response), 500, {'Content-Type': 'application/json'}
+    else:
+        flask.abort(401)
+    
 @app.route("/api/servers/<uuid>/create", methods=["POST"])
 def create_server(uuid):
     system_token = flask.request.form.get("system_token")

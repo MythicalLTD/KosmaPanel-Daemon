@@ -15,7 +15,7 @@ if [[ $installation == "y" || $installation == "Y" || $installation == "yes" || 
 then
     sudo apt update -y
     sudo apt --ignore-missing install apache2 git python3 python3-pip docker containerd docker.io -y
-    python3 -m pip install flask flask_sock flask_cors docker waitress pyinstaller
+    python3 -m pip install flask flask_sock flask_cors docker waitress pyinstaller psutil py-cpuinfo
     cd /etc
     sudo git clone https://github.com/MythicalLTD/KosmaPanel-Daemon.git KosmaPanel
     sudo mv /etc/KosmaPanel/daemon.service /etc/systemd/system/
