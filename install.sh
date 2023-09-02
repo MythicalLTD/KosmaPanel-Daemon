@@ -26,7 +26,7 @@ then
     certbot certonly --standalone -d $domain
     cp /etc/KosmaPanel/daemon.conf /etc/apache2/sites-available/daemon.conf
     sed -i "s/url/$domain/" /etc/apache2/sites-available/daemon.conf
-    ln -s /etc/apache2/sites-available/daemon.conf /etc/apache2/sites-available/daemon.conf
+    ln -s /etc/apache2/sites-available/daemon.conf /etc/apache2/sites-enabled/daemon.conf
     service apache2 start
     echo ""
     echo " --> Installation completed"
