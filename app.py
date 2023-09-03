@@ -10,66 +10,10 @@ import platform
 import psutil
 import cpuinfo
 import subprocess
-import datetime
+from logger import Logger, LogType
+logger = Logger()
 
-class LogType:
-    Info = "Info"
-    Warning = "Warning"
-    Error = "Error"
-
-class Logger:
-    def __init__(self):
-        log_directory = "logs"
-        log_file_name = "log.txt"
-        log_directory_path = os.path.join(os.getcwd(), log_directory)
-        self.log_file_path = os.path.join(log_directory_path, log_file_name)
-        os.makedirs(log_directory_path, exist_ok=True)
-        self._rename_log_file()
-
-    def log(self, log_type, message):
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
-        log_text = f"[{timestamp}] [{log_type}] {message}"
-
-        color = '\033[0m' 
-        if log_type == LogType.Info:
-            color = '\033[92m' 
-        elif log_type == LogType.Warning:
-            color = '\033[93m'  
-        elif log_type == LogType.Error:
-            color = '\033[91m' 
-
-        print(color + log_text + '\033[0m')  
-
-        self._append_to_file(log_text)
-
-    def _append_to_file(self, log_text):
-        try:
-            with open(self.log_file_path, "a") as file:
-                file.write(log_text + "\n")
-        except Exception as ex:
-            print(f"Error writing to log file: {ex}")
-
-    def _rename_log_file(self):
-        if os.path.exists(self.log_file_path):
-            log_file_name_without_extension = os.path.splitext(os.path.basename(self.log_file_path))[0]
-            log_file_extension = os.path.splitext(self.log_file_path)[1]
-            log_directory_path = os.path.dirname(self.log_file_path)
-            new_log_file_name = self._get_unique_log_file_name(log_directory_path, log_file_name_without_extension, log_file_extension)
-            new_log_file_path = os.path.join(log_directory_path, new_log_file_name)
-            os.rename(self.log_file_path, new_log_file_path)
-            self.log_file_path = new_log_file_path
-
-    def _get_unique_log_file_name(self, directory_path, file_name_without_extension, file_extension):
-        unique_file_name = f"{file_name_without_extension}-{datetime.datetime.now().strftime('%Y-%m-%d')}{file_extension}"
-        unique_file_path = os.path.join(directory_path, unique_file_name)
-
-        counter = 1
-        while os.path.exists(unique_file_path):
-            unique_file_name = f"{file_name_without_extension}-{counter}-{datetime.datetime.now().strftime('%Y-%m-%d')}{file_extension}"
-            unique_file_path = os.path.join(directory_path, unique_file_name)
-            counter += 1
-
-        return unique_file_name
+app_port = 5001
 
 def convert_bytes(bytes_value, to_unit):
     if to_unit == "GB":
@@ -82,7 +26,7 @@ def convert_bytes(bytes_value, to_unit):
 
 def check_and_fail_on_windows():
     if platform.system() == "Windows":
-        Logger.log(LogType.Error , "This script cannot run on Windows.")
+        logger.log(LogType.Error , "This script cannot run on Windows.")
         sys.exit(1)
 
 def sqlquery(sql, *parameter):
@@ -106,13 +50,46 @@ def check_service_status(service_name):
     status = result.stdout.strip()
     return status
 
-os.chdir("/etc/KosmaPanel")
+app_dir = "/etc/KosmaPanel"
 
-client = docker.from_env()
-app = flask.Flask(__name__)
-sock = flask_sock.Sock(app)
-cors = flask_cors.CORS(app, resources={r"/*": {"origins": "*"}})
-check_and_fail_on_windows()
+logger.log(LogType.Info, "Welcome to KosmaPanel daemon please wait while we start our services")
+logger.log(LogType.Info, f"Mounting daemon dir to {app_dir}")
+try: 
+    os.chdir(app_dir)
+except Exception as ex: 
+    logger.log(LogType.Error, f"Failed to mount to '{app_dir}': {ex}")
+
+logger.log(LogType.Info, "Starting docker..")
+try: 
+    client = docker.from_env()
+    start_service('docker')
+except Exception as ex:
+    logger.log(LogType.Error, "Failed to start docker: "+ex)
+logger.log(LogType.Info, "Started docker")
+
+logger.log(LogType.Info, "Starting webserver..")
+try:
+    app = flask.Flask(__name__)
+except Exception as ex:
+    logger.log(LogType.Error, "Failed to start webserver: "+ex)
+logger.log(LogType.Info, f"Started webserver at: {app_port}")
+logger.log(LogType.Info, "Starting websockets..")
+try:
+    sock = flask_sock.Sock(app)
+except Exception as ex:
+    logger.log(LogType.Error,"Failed to start websockets: "+ex)
+logger.log(LogType.Info, "Started websockets")
+logger.log(LogType.Info, "Starting cors..") 
+try: 
+    cors = flask_cors.CORS(app, resources={r"/*": {"origins": "*"}})
+except Exception as ex:
+    logger.log(LogType.Error, "Failed to start cors: "+ex)
+logger.log(LogType.Info,"Started cors")
+logger.log(LogType.Info,"Running system scan..")
+try:
+    check_and_fail_on_windows()
+except Exception as ex:
+    logger.log(LogType.error, "Failed to finish system scan: "+ex)
 
 @app.errorhandler(400)
 def bad_request_error(error):
@@ -321,8 +298,8 @@ try:
         conn.commit()
         if not os.path.exists("/etc/KosmaPanel/data"):
             os.mkdir("/etc/KosmaPanel/data")
-        Logger().log(LogType.Info ,"-> Node configured succesfully")
-        Logger().log(LogType.Info, "Run: service deamon start, to start deamon via systemctl")
+        logger.log(LogType.Info ,"-> Node configured succesfully")
+        logger.log(LogType.Info, "Run: service deamon start, to start deamon via systemctl")
         cursor.execute("INSERT INTO settings (system_token) VALUES (?)", (sys.argv[2],))
         conn.commit()
         os._exit(1)
@@ -331,7 +308,7 @@ except:
         app.config["SYSTEM_TOKEN"] = sqlquery("SELECT * FROM settings")[0][0]
         app.config["SECRET_KEY"] = os.urandom(30).hex()
         app.config["UPLOAD_FOLDER"] = "/etc/KosmaPanel/data"
-        app.run(debug=False, host="0.0.0.0", port=5001)
+        app.run(debug=False, host="0.0.0.0", port=app_port)
     else:
-        Logger().log(LogType.Info,"Node not configured")
+        logger.log(LogType.Info,"Node not configured")
         os._exit(1)
