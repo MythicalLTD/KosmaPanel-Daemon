@@ -11,9 +11,8 @@ import psutil
 import cpuinfo
 import subprocess
 from logger import Logger, LogType
+from config import app_port
 logger = Logger()
-
-app_port = 5001
 
 def convert_bytes(bytes_value, to_unit):
     if to_unit == "GB":
@@ -140,7 +139,7 @@ def main():
     return response
 
 @app.route("/api/daemon/restart", methods=["POST"])
-def restart_daemon():
+def route_restart_daemon():
     system_token = flask.request.form.get("system_token")
     if not all([system_token]):
         response = {
@@ -163,8 +162,72 @@ def restart_daemon():
     else:
         flask.abort(401)
 
+@app.route("/api/system/reboot", methods=["POST"])
+def route_shutdown_system():
+    system_token = flask.request.form.get("system_token")
+    if not all([system_token]):
+        response = {
+            "error": "Missing required input parameters",
+        }
+        return json.dumps(response), 400, {'Content-Type': 'application/json'}
+
+    if system_token == app.config["SYSTEM_TOKEN"]:
+        try:
+            reboot_command = "reboot" 
+            try:
+                subprocess.run(reboot_command, shell=True, check=True)
+            except subprocess.CalledProcessError as e:
+                response = {
+                    "error": Exception(f"Error: {e}"),
+                }
+                return json.dumps(response), 500, {'Content-Type': 'application/json'}
+            else:
+                response = {
+                    "success": "Server is rebooting...",
+                }
+                return json.dumps(response), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            response = {
+                "error": str(e),
+            }
+            return json.dumps(response), 500, {'Content-Type': 'application/json'}
+    else:
+        flask.abort(401)
+
+@app.route("/api/system/shutdown", methods=["POST"])
+def route_reboot_system():
+    system_token = flask.request.form.get("system_token")
+    if not all([system_token]):
+        response = {
+            "error": "Missing required input parameters",
+        }
+        return json.dumps(response), 400, {'Content-Type': 'application/json'}
+
+    if system_token == app.config["SYSTEM_TOKEN"]:
+        try:
+            poweroff_command = "poweroff" 
+            try:
+                subprocess.run(poweroff_command, shell=True, check=True)
+            except subprocess.CalledProcessError as e:
+                response = {
+                    "error": Exception(f"Error: {e}"),
+                }
+                return json.dumps(response), 500, {'Content-Type': 'application/json'}
+            else:
+                response = {
+                    "success": "Server is shutting down...",
+                }
+                return json.dumps(response), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            response = {
+                "error": str(e),
+            }
+            return json.dumps(response), 500, {'Content-Type': 'application/json'}
+    else:
+        flask.abort(401)
+
 @app.route("/api/daemon/shutdown", methods=["POST"])
-def shutdown_daemon():
+def route_shutdown_daemon():
     system_token = flask.request.form.get("system_token")
     if not all([system_token]):
         response = {
@@ -188,7 +251,7 @@ def shutdown_daemon():
         flask.abort(401)
 
 @app.route("/api/daemon/info",methods=["POST"])
-def get_daemon_info():
+def route_get_daemon_info():
     system_token = flask.request.form.get("system_token")
     if not all([system_token]):
         response = {
@@ -262,7 +325,7 @@ def get_daemon_info():
         flask.abort(401)
     
 @app.route("/api/servers/<uuid>/create", methods=["POST"])
-def create_server(uuid):
+def route_create_server(uuid):
     system_token = flask.request.form.get("system_token")
     user_token = flask.request.form.get("user_token")
     port = flask.request.form.get("port")
