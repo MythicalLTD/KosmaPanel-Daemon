@@ -160,7 +160,10 @@ def route_restart_daemon():
             }
             return json.dumps(response), 500, {'Content-Type': 'application/json'}
     else:
-        flask.abort(401)
+        response = {
+            "error": "Server token mismatch: please check if this is the right server token to authenticate with the node and panel.",
+        }
+        return json.dumps(response), 401, {'Content-Type': 'application/json'}
 
 @app.route("/api/system/reboot", methods=["POST"])
 def route_shutdown_system():
@@ -192,7 +195,10 @@ def route_shutdown_system():
             }
             return json.dumps(response), 500, {'Content-Type': 'application/json'}
     else:
-        flask.abort(401)
+        response = {
+            "error": "Server token mismatch: please check if this is the right server token to authenticate with the node and panel.",
+        }
+        return json.dumps(response), 401, {'Content-Type': 'application/json'}
 
 @app.route("/api/system/shutdown", methods=["POST"])
 def route_reboot_system():
@@ -224,7 +230,10 @@ def route_reboot_system():
             }
             return json.dumps(response), 500, {'Content-Type': 'application/json'}
     else:
-        flask.abort(401)
+        response = {
+            "error": "Server token mismatch: please check if this is the right server token to authenticate with the node and panel.",
+        }
+        return json.dumps(response), 401, {'Content-Type': 'application/json'}
 
 @app.route("/api/daemon/shutdown", methods=["POST"])
 def route_shutdown_daemon():
@@ -248,7 +257,10 @@ def route_shutdown_daemon():
             }
             return json.dumps(response), 500, {'Content-Type': 'application/json'}
     else:
-        flask.abort(401)
+        response = {
+            "error": "Server token mismatch: please check if this is the right server token to authenticate with the node and panel.",
+        }
+        return json.dumps(response), 401, {'Content-Type': 'application/json'}
 
 @app.route("/api/daemon/info",methods=["POST"])
 def route_get_daemon_info():
@@ -285,6 +297,9 @@ def route_get_daemon_info():
             disk_used_gb = convert_bytes(disk_info.used, "GB")
             disk_free_gb = convert_bytes(disk_info.free, "GB")
             uptime_seconds = int(psutil.boot_time())
+            
+            # Get cpu usage
+            cpu_usage = psutil.cpu_percent()
 
             #  Convert uptime to a human-readable format (days, hours, minutes)
             uptime_minutes, uptime_seconds = divmod(uptime_seconds, 60)
@@ -312,6 +327,7 @@ def route_get_daemon_info():
                 },
                 "cpu_info": {
                     "name": cpu_name,
+                    "usage": cpu_usage,
                 }
             }
 
@@ -322,7 +338,10 @@ def route_get_daemon_info():
             }
             return json.dumps(response), 500, {'Content-Type': 'application/json'}
     else:
-        flask.abort(401)
+        response = {
+            "error": "Server token mismatch: please check if this is the right server token to authenticate with the node and panel.",
+        }
+        return json.dumps(response), 401, {'Content-Type': 'application/json'}
     
 @app.route("/api/servers/<uuid>/create", methods=["POST"])
 def route_create_server(uuid):
@@ -351,7 +370,10 @@ def route_create_server(uuid):
             }
             return json.dumps(response), 500, {'Content-Type': 'application/json'}
     else:
-        flask.abort(401)
+        response = {
+            "error": "Server token mismatch: please check if this is the right server token to authenticate with the node and panel.",
+        }
+        return json.dumps(response), 401, {'Content-Type': 'application/json'}
 
 try:
     if sys.argv[1] == "--token":
