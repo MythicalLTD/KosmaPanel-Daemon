@@ -42,7 +42,6 @@ namespace KosmaPanelWebManager
             Console.ForegroundColor = color;
             Console.WriteLine(logText);
             Console.ResetColor();
-
             AppendToFile(logText);
         }
 
@@ -57,7 +56,10 @@ namespace KosmaPanelWebManager
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error writing to log file: {ex.Message}");
+                string timestamp = DateTime.Now.ToString("HH:mm:ss");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[{timestamp}] [Error] Error writing to log file: {ex.Message}");
+                Console.ResetColor();
             }
         }
 
