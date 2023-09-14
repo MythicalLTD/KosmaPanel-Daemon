@@ -4,6 +4,6 @@ After=multi-user.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=/etc/KosmaPanel/webmanager/KosmaPanelWebManager
+ExecStart=~/.dotnet/dotnet /etc/KosmaPanel/webmanager/publish/KosmaPanelWebManager
 [Install]
 WantedBy=multi-user.target
