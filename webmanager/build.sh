@@ -1,6 +1,6 @@
 #!/bin/bash
 
-runtimes=("linux-x64" "linux-arm64" "linux-arm")
+runtimes=("linux-x64" "linux-x86" "linux-arm64" "linux-arm")
 rm -r bin/Release
 rm -r obj/
 rm /etc/KosmaPanel/webmanager/KosmaPanelWebManagerARM32
