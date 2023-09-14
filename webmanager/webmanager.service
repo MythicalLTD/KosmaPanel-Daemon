@@ -4,6 +4,6 @@ After=multi-user.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3 /etc/KosmaPanel/app.py
+ExecStart=/etc/KosmaPanel/webmanager/KosmaPanelWebManager
 [Install]
 WantedBy=multi-user.target
