@@ -14,8 +14,8 @@ read -p "Are you sure you want to continue? [y/n] " installation
 if [[ $installation == "y" || $installation == "Y" || $installation == "yes" || $installation == "Yes" ]]
 then
     sudo apt update -y
-    sudo apt --ignore-missing install apache2 git python3 python3-pip docker containerd docker.io -y
-    python3 -m pip install flask flask_sock flask_cors docker waitress pyinstaller psutil py-cpuinfo
+    sudo apt --ignore-missing install apache2 git python3 python3-pip docker containerd docker.io docker-compose -y
+    python3 -m pip install flask flask_sock flask_cors waitress pyinstaller psutil py-cpuinfo paramiko
     cd /etc
     sudo git clone https://github.com/MythicalLTD/KosmaPanel-Daemon.git KosmaPanel
     sudo mv /etc/KosmaPanel/daemon.service /etc/systemd/system/

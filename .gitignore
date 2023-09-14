@@ -164,3 +164,7 @@ test.sh
 database.sqlite
 logs/
 data/
+/webmanager/obj/
+/webmanager/bin/
+/webmanager/config.ini
+/.vscode/

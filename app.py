@@ -1,11 +1,11 @@
 import flask 
 import os 
 import sqlite3 
-import docker 
 import sys
 import flask_sock
 import json
 import flask_cors
+import docker
 import platform
 import psutil
 import cpuinfo
@@ -307,6 +307,7 @@ def route_get_daemon_info():
             uptime_days, uptime_hours = divmod(uptime_hours, 24)
             # Prepare the response as a JSON object
             response = {
+                "code": 200,
                 "os_type": os_name,
                 "kernel": kernel_name,
                 "uptime": {
