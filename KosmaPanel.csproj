@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>KosmaPanel</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>KosmaPanel.Program</StartupObject>
+    <Title>KosmaPanel</Title>
+    <Authors>MythicalSystems</Authors>
+    <Company>MythicalSystems</Company>
+    <PackageProjectUrl>https://github.com/mythicalltd/KosmaPanel-Daemon</PackageProjectUrl>
+    <Description>The daemon for KosmaPanel</Description>
+    <Copyright>2023 MythicalSystems</Copyright>
+    <RepositoryUrl>https://github.com/mythicalltd/KosmaPanel-Daemon</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Core.Renci.SshNet" Version="2021.10.2" />
+    <PackageReference Include="Costura.Fody" Version="5.7.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Salaros.ConfigParser" Version="0.3.8" />
+  </ItemGroup>
+
+</Project>
