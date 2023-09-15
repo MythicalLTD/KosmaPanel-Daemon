@@ -1,7 +1,8 @@
 
 using System.Diagnostics;
+using KosmaPanel.Managers;
 
-namespace KosmaPanel;
+namespace KosmaPanel.Helpers;
 public class BashHelper
 {
     public static async Task<string> ExecuteCommand(string command)

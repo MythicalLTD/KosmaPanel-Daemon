@@ -1,7 +1,8 @@
 using System;
 using KosmaPanel;
+using KosmaPanel.Helpers;
 
-namespace KosmaPanel;
+namespace KosmaPanel.Managers;
 
 public class PowerManager
 {
