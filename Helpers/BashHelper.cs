@@ -22,4 +22,18 @@ public class BashHelper
         }
         return output;
     }
+    public static Task<Process> ExecuteCommandRaw(string command)
+    {
+        Process process = new Process();
+        
+        process.StartInfo.FileName = "/bin/bash";
+        process.StartInfo.Arguments = $"-c \"{command.Replace("\"", "\\\"")}\"";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.RedirectStandardError = true;
+
+        process.Start();
+
+        return Task.FromResult(process);
+    }
 }   

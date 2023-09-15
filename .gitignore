@@ -2,3 +2,4 @@ config.ini
 /bin/
 /obj/
 /logs/
+ddosDetection.bash

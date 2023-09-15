@@ -1,3 +1,7 @@
+using KosmaPanel.Managers;
+using KosmaPanel.Helpers;
+using KosmaPanel.Services;
+
 namespace KosmaPanel
 {
     public class Program
@@ -95,6 +99,8 @@ namespace KosmaPanel
             }
             logger.Log(LogType.Info, "Please wait while we start KosmaPanel");
             LinuxMetricsService.getOsInfo();
+            DDosDetectionService dds = new DDosDetectionService();
+            dds.Start();
             try
             {
                 ConfigManager.CheckSettings();

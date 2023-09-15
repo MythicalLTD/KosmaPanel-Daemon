@@ -15,8 +15,8 @@ class WebServerService
 
     public void Start(string d_port, string d_host)
     {
-        Console.SetOut(TextWriter.Null);
-        Console.SetError(TextWriter.Null);
+        //Console.SetOut(TextWriter.Null);
+        //Console.SetError(TextWriter.Null);
 
         var host = new WebHostBuilder()
             .UseKestrel(options =>
