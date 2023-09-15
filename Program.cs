@@ -1,6 +1,7 @@
 using KosmaPanel.Managers;
 using KosmaPanel.Helpers;
 using KosmaPanel.Services;
+using System.Data;
 
 namespace KosmaPanel
 {
@@ -18,7 +19,10 @@ namespace KosmaPanel
     ";
         public static string version = "1.0.0";
         public static LoggerManager logger = new LoggerManager();
-
+        public static string? connectionString;
+        public static DatabaseConnectionManager dbc = new DatabaseConnectionManager(connectionString);
+        public static DatabaseExecutor db = new DatabaseExecutor(dbc);
+        
         public static void Main(string[] args)
         {
             Console.Clear();
@@ -75,6 +79,36 @@ namespace KosmaPanel
                 ConfigManager.UpdateSetting("Daemon", "ssh_password", password);
                 Environment.Exit(0x0);
             }
+            else if (args.Length == 2 && args[0] == "--setMySQLPort")
+            {
+                string port = args[1];
+                ConfigManager.UpdateSetting("Daemon", "mysql_port", port);
+                Environment.Exit(0x0);
+            }
+            else if (args.Length == 2 && args[0] == "--setMySQLDBName")
+            {
+                string name = args[1];
+                ConfigManager.UpdateSetting("Daemon", "mysql_db_name", name);
+                Environment.Exit(0x0);
+            }
+            else if (args.Length == 2 && args[0] == "--setMySQLHost")
+            {
+                string host = args[1];
+                ConfigManager.UpdateSetting("Daemon", "mysql_host", host);
+                Environment.Exit(0x0);
+            }
+            else if (args.Length == 2 && args[0] == "--setMySQLUsername")
+            {
+                string username = args[1];
+                ConfigManager.UpdateSetting("Daemon", "mysql_username", username);
+                Environment.Exit(0x0);
+            }
+            else if (args.Length == 2 && args[0] == "--setMySQLPassword")
+            {
+                string password = args[1];
+                ConfigManager.UpdateSetting("Daemon", "mysql_password", password);
+                Environment.Exit(0x0);
+            }
             else if (args.Contains("-resetkey"))
             {
                 ConfigManager.d_settings = Directory.GetCurrentDirectory() + @"/config.ini";
@@ -110,7 +144,9 @@ namespace KosmaPanel
                 logger.Log(LogType.Error, "Sorry but i start the config manager: " + ex.Message);
                 Environment.Exit(0x0);
             }
-
+            dbc.OpenConnection();
+            DataTable result = db.ExecuteQuery("SHOW TABLES;");
+            dbc.CloseConnection();
             try
             {
                 logger.Log(LogType.Info, "Daemon started on: " + ConfigManager.GetSetting("Daemon", "host") + ":" + ConfigManager.GetSetting("Daemon", "port"));

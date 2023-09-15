@@ -39,7 +39,7 @@ namespace KosmaPanel.Services
         {
             try
             {
-                 Program.logger.Log(LogType.Info,"Starting DDoS detection");
+                Program.logger.Log(LogType.Info,"Starting DDoS detection");
                 if (!File.Exists("ddosDetection.bash"))
                 {
                     Program.logger.Log(LogType.Info,"Downloading script");

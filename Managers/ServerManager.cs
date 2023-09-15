@@ -6,4 +6,8 @@ public class ServerManager
     {
 
     }
+
+    public static void DeleteServer() {
+
+    }
 }

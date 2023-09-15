@@ -3,3 +3,4 @@ config.ini
 /obj/
 /logs/
 ddosDetection.bash
+econfig.ini

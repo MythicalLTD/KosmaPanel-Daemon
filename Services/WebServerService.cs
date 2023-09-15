@@ -142,7 +142,7 @@ class WebServerService
                     }
                 case "execute":
                     {
-                        string command = request.Query["command"];
+                        string command = request.Query["command"]!;
                         try
                         {
                             var sshHost = ConfigManager.GetSetting("Daemon", "ssh_ip");
@@ -239,7 +239,7 @@ class WebServerService
     }
     private static (bool isValid, string message) IsAuthorized(HttpRequest request)
     {
-        string apiKey = request.Headers["Authorization"];
+        string apiKey = request.Headers["Authorization"]!;
         if (string.IsNullOrEmpty(apiKey))
         {
             return (false, "API key is empty.");
