@@ -1,9 +1,0 @@
-[Unit]
-Description=WebManager service
-After=multi-user.target
-[Service]
-Type=simple
-Restart=always
-ExecStart=~/.dotnet/dotnet /etc/KosmaPanel/webmanager/publish/KosmaPanelWebManager
-[Install]
-WantedBy=multi-user.target
