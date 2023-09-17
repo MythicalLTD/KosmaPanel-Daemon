@@ -1,7 +1,6 @@
 using KosmaPanel.Managers;
 using KosmaPanel.Helpers;
 using KosmaPanel.Services;
-using System.Data;
 
 namespace KosmaPanel
 {
@@ -20,135 +19,27 @@ namespace KosmaPanel
         public static string version = "1.0.0";
         public static LoggerManager logger = new LoggerManager();
         public static string? connectionString;
-        public static DatabaseConnectionManager dbc = new DatabaseConnectionManager(connectionString);
-        public static DatabaseExecutor db = new DatabaseExecutor(dbc);
-        
         public static void Main(string[] args)
         {
             Console.Clear();
-            Console.WriteLine(mcascii);
+            logger.Log(LogType.Info, mcascii);
             if (!OperatingSystem.IsLinux())
             {
                 logger.Log(LogType.Error, "Sorry you have to be on debain / linux to use our daemon");
                 Environment.Exit(0x0);
             }
-            if (args.Contains("-version"))
-            {
-                logger.Log(LogType.Info, $"You are running version: {version}");
+            if (ArgumentManager.ProcessArguments(args))
+            { 
                 Environment.Exit(0x0);
             }
-            else if (args.Length == 2 && args[0] == "--setHost")
-            {
-                string key = args[1];
-                ConfigManager.UpdateSetting("Daemon", "host", key);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setPort")
-            {
-                string port = args[1];
-                ConfigManager.UpdateSetting("Daemon", "port", port);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setKey")
-            {
-                string enkey = args[1];
-                ConfigManager.UpdateSetting("Daemon", "key", enkey);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setSshPort")
-            {
-                string port = args[1];
-                ConfigManager.UpdateSetting("Daemon", "ssh_port", port);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setSshHost")
-            {
-                string host = args[1];
-                ConfigManager.UpdateSetting("Daemon", "ssh_ip", host);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setSshUsername")
-            {
-                string username = args[1];
-                ConfigManager.UpdateSetting("Daemon", "ssh_username", username);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setSshPassword")
-            {
-                string password = args[1];
-                ConfigManager.UpdateSetting("Daemon", "ssh_password", password);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setMySQLPort")
-            {
-                string port = args[1];
-                ConfigManager.UpdateSetting("Daemon", "mysql_port", port);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setMySQLDBName")
-            {
-                string name = args[1];
-                ConfigManager.UpdateSetting("Daemon", "mysql_db_name", name);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setMySQLHost")
-            {
-                string host = args[1];
-                ConfigManager.UpdateSetting("Daemon", "mysql_host", host);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setMySQLUsername")
-            {
-                string username = args[1];
-                ConfigManager.UpdateSetting("Daemon", "mysql_username", username);
-                Environment.Exit(0x0);
-            }
-            else if (args.Length == 2 && args[0] == "--setMySQLPassword")
-            {
-                string password = args[1];
-                ConfigManager.UpdateSetting("Daemon", "mysql_password", password);
-                Environment.Exit(0x0);
-            }
-            else if (args.Contains("-resetkey"))
-            {
-                ConfigManager.d_settings = Directory.GetCurrentDirectory() + @"/config.ini";
-                try
-                {
-                    string skey = KeyChecker.GenerateStrongKey();
-                    ConfigManager.UpdateSetting("Daemon", "key", skey);
-                    logger.Log(LogType.Info, "We updated your daemon settings");
-                    logger.Log(LogType.Info, $"Your key is: {skey}");
-                    Environment.Exit(0x0);
-                }
-                catch (Exception ex)
-                {
-                    logger.Log(LogType.Error, $"Failed to generate a key: {ex.Message}");
-                    Environment.Exit(0x0);
-                }
-            }
-            else if (args.Length > 0)
-            {
-                logger.Log(LogType.Warning, "This is an invalid startup argument. Please use '-help' to get more information.");
-                Environment.Exit(0x0);
-            }
-            logger.Log(LogType.Info, "Please wait while we start KosmaPanel");
-            LinuxMetricsService.getOsInfo();
-            DDosDetectionService dds = new DDosDetectionService();
-            dds.Start();
             try
             {
+                logger.Log(LogType.Info, "Please wait while we start KosmaPanel");
+                LinuxMetricsService.getOsInfo();
+                DDosDetectionService dds = new DDosDetectionService();
+                dds.Start();
                 ConfigManager.CheckSettings();
-            }
-            catch (Exception ex)
-            {
-                logger.Log(LogType.Error, "Sorry but i start the config manager: " + ex.Message);
-                Environment.Exit(0x0);
-            }
-            dbc.OpenConnection();
-            DataTable result = db.ExecuteQuery("SHOW TABLES;");
-            dbc.CloseConnection();
-            try
-            {
+                connectionString = $"Server={ConfigManager.mysql_host};Port={ConfigManager.mysql_port};User ID={ConfigManager.mysql_username};Password={ConfigManager.mysql_password};Database={ConfigManager.mysql_name}";
                 logger.Log(LogType.Info, "Daemon started on: " + ConfigManager.GetSetting("Daemon", "host") + ":" + ConfigManager.GetSetting("Daemon", "port"));
                 logger.Log(LogType.Info, "Secret key: " + ConfigManager.GetSetting("Daemon", "key"));
                 WebServerService wbs = new WebServerService();

@@ -7,7 +7,11 @@ public class ConfigManager
 {
 
     public static string d_settings = Directory.GetCurrentDirectory() + @"/config.ini";
-
+    public static string? mysql_host;
+    public static string? mysql_port;
+    public static string? mysql_username;
+    public static string? mysql_password;
+    public static string? mysql_name;
     public static void CheckSettings()
     {
         try
@@ -37,16 +41,16 @@ public class ConfigManager
             var d_ssh_port = GetSetting("Daemon", "ssh_port");
             var d_ssh_username = GetSetting("Daemon", "ssh_username");
             var d_ssh_password = GetSetting("Daemon", "ssh_password");
-            var mysql_host = GetSetting("Daemon", "mysql_host");
-            var mysql_port = GetSetting("Daemon", "mysql_port");
-            var mysql_username = GetSetting("Daemon", "mysql_username");
-            var mysql_password = GetSetting("Daemon", "mysql_password");
-            var mysql_name = GetSetting("Daemon", "mysql_db_name");
-            if (mysql_host == "") {
-                mysql_host = "127.0.0.1";
+            var cfg_mysql_host = GetSetting("Daemon", "mysql_host");
+            var cfg_mysql_port = GetSetting("Daemon", "mysql_port");
+            var cfg_mysql_username = GetSetting("Daemon", "mysql_username");
+            var cfg_mysql_password = GetSetting("Daemon", "mysql_password");
+            var cfg_mysql_name = GetSetting("Daemon", "mysql_db_name");
+            if (cfg_mysql_host == "") {
+                cfg_mysql_host = "127.0.0.1";
             }
-            if (mysql_port == "") {
-                mysql_port = "3306";
+            if (cfg_mysql_port == "") {
+                cfg_mysql_port = "3306";
             }
             if (d_host == "")
             {
@@ -56,22 +60,26 @@ public class ConfigManager
             {
                 d_port = "5001";
             }
-            if (mysql_password == "")
+            if (cfg_mysql_password == "")
             {
                 Program.logger.Log(LogType.Error, "Failed to start: 'We did not find any mysql connection information inside the settings.ini.'");
                 Environment.Exit(0x0);
             }
-            if (mysql_name == "")
+            if (cfg_mysql_name == "")
             {
                 Program.logger.Log(LogType.Error, "Failed to start: 'We did not find any mysql connection information inside the settings.ini.'");
                 Environment.Exit(0x0);
             }
-            if (mysql_username == "")
+            if (cfg_mysql_username == "")
             {
                 Program.logger.Log(LogType.Error, "Failed to start: 'We did not find any mysql connection information inside the settings.ini.'");
                 Environment.Exit(0x0);
             }
-            Program.connectionString = $"Server={mysql_host};Port={mysql_port};Database={mysql_name};User={mysql_username};Password={mysql_password};";
+            mysql_host = cfg_mysql_host;
+            mysql_port = cfg_mysql_port;
+            mysql_username = cfg_mysql_username;
+            mysql_password = cfg_mysql_password;
+            mysql_name = cfg_mysql_name;
             if (d_ssh_ip == "")
             {
                 Program.logger.Log(LogType.Error, "Failed to start: 'We did not find any ssh connection information inside the settings.ini.'");

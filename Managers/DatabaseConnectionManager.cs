@@ -1,43 +1,42 @@
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System;
+using System.Data;
 
-namespace KosmaPanel.Managers
+namespace KosmaPanel.Managers;
+
+public class DatabaseConnectionManager : IDisposable
 {
-    public class DatabaseConnectionManager
+    private MySqlConnection _connection;
+
+    public DatabaseConnectionManager(string connectionString)
     {
-        private MySqlConnection connection;
+        _connection = new MySqlConnection(connectionString);
+    }
 
-        public DatabaseConnectionManager(string connectionString)
+    public void OpenConnection()
+    {
+        if (_connection.State == ConnectionState.Closed)
         {
-            connection = new MySqlConnection(connectionString);
+            _connection.Open();
         }
+    }
 
-        public void OpenConnection()
+    public void CloseConnection()
+    {
+        if (_connection.State == ConnectionState.Open)
         {
-            try
-            {
-                connection.Open();
-                Program.logger.Log(LogType.Info, "Connected to the database.");
-            }
-            catch (Exception ex)
-            {
-                Program.logger.Log(LogType.Error, $"Error: {ex.Message}");
-                Environment.Exit(0x0);
-            }
+            _connection.Close();
         }
+    }
 
-        public void CloseConnection()
-        {
-            if (connection.State == System.Data.ConnectionState.Open)
-            {
-                connection.Close();
-                Program.logger.Log(LogType.Info, "Disconnected from the database.");   
-            }
-        }
+    public MySqlConnection GetConnection()
+    {
+        return _connection;
+    }
 
-        public MySqlConnection GetConnection()
-        {
-            return connection;
-        }
+    public void Dispose()
+    {
+        _connection.Close();
+        _connection.Dispose();
     }
 }
