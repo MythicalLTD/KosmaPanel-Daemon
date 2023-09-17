@@ -1,17 +1,19 @@
 using KosmaPanel;
 using MySqlConnector;
-using System;
 
-public static class SqlScriptExecutor
+namespace KosmaPanel.Helpers.SqlScriptExecutor
 {
-    public static void Execute(string query)
+    public static class SqlScriptExecutor
     {
-        using (MySqlConnection connection = new MySqlConnection(Program.connectionString))
+        public static void Execute(string query)
         {
-            using (MySqlCommand cmd = new MySqlCommand(query, connection))
+            using (MySqlConnection connection = new MySqlConnection(Program.connectionString))
             {
-                connection.Open();
-                cmd.ExecuteNonQuery();
+                using (MySqlCommand cmd = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
     }

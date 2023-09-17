@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Timers;
-using KosmaPanel.Helpers;
-using KosmaPanel.Managers;
+using KosmaPanel.Helpers.BashHelper;
+using KosmaPanel.Managers.LoggerManager;
 
-namespace KosmaPanel.Services
+namespace KosmaPanel.Services.DDosDetectionService
 {
     public class DDosDetectionService
     {

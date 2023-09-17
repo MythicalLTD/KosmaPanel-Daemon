@@ -2,41 +2,44 @@ using MySqlConnector;
 using System;
 using System.Data;
 
-namespace KosmaPanel.Managers;
-
-public class DatabaseConnectionManager : IDisposable
+namespace KosmaPanel.Managers.DatabaseConnectionManager
 {
-    private MySqlConnection _connection;
-
-    public DatabaseConnectionManager(string connectionString)
+    public class DatabaseConnectionManager : IDisposable
     {
-        _connection = new MySqlConnection(connectionString);
-    }
+        private MySqlConnection _connection;
 
-    public void OpenConnection()
-    {
-        if (_connection.State == ConnectionState.Closed)
+        public DatabaseConnectionManager(string connectionString)
         {
-            _connection.Open();
+            _connection = new MySqlConnection(connectionString);
         }
-    }
 
-    public void CloseConnection()
-    {
-        if (_connection.State == ConnectionState.Open)
+        public void OpenConnection()
+        {
+            if (_connection.State == ConnectionState.Closed)
+            {
+                _connection.Open();
+            }
+        }
+
+        public void CloseConnection()
+        {
+            if (_connection.State == ConnectionState.Open)
+            {
+                _connection.Close();
+            }
+        }
+
+        public MySqlConnection GetConnection()
+        {
+            return _connection;
+        }
+
+        public void Dispose()
         {
             _connection.Close();
+            _connection.Dispose();
         }
     }
 
-    public MySqlConnection GetConnection()
-    {
-        return _connection;
-    }
-
-    public void Dispose()
-    {
-        _connection.Close();
-        _connection.Dispose();
-    }
 }
+

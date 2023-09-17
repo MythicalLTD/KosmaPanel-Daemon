@@ -1,8 +1,9 @@
 
 using System.Diagnostics;
 using KosmaPanel.Managers;
+using KosmaPanel.Managers.LoggerManager;
 
-namespace KosmaPanel.Helpers;
+namespace KosmaPanel.Helpers.BashHelper;
 public class BashHelper
 {
     public static async Task<string> ExecuteCommand(string command)

@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace KosmaPanel.Helpers;
+namespace KosmaPanel.Helpers.KeyChecker;
 public class KeyChecker
 {
     public static bool isStrongKey(string password, int minimumLength = 8)

@@ -1,6 +1,9 @@
-using KosmaPanel.Managers;
-using KosmaPanel.Helpers;
-using KosmaPanel.Services;
+using KosmaPanel.Managers.ArgumentManager;
+using KosmaPanel.Managers.ConfigManager;
+using KosmaPanel.Managers.LoggerManager;
+using KosmaPanel.Services.DDosDetectionService;
+using KosmaPanel.Services.LinuxMetricsService;
+using KosmaPanel.Services.WebServerService;
 
 namespace KosmaPanel
 {
@@ -29,7 +32,7 @@ namespace KosmaPanel
                 Environment.Exit(0x0);
             }
             if (ArgumentManager.ProcessArguments(args))
-            { 
+            {
                 Environment.Exit(0x0);
             }
             try
@@ -47,9 +50,10 @@ namespace KosmaPanel
             }
             catch (Exception ex)
             {
-                logger.Log(LogType.Error, "Sorry but i cant start the daemon webserver: " + ex.Message);
+                logger.Log(LogType.Error, "Sorry but i cant start the daemon: " + ex.Message);
                 Environment.Exit(0x0);
             }
+
         }
     }
 }

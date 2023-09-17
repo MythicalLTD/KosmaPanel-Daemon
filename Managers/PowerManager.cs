@@ -1,18 +1,18 @@
-using System;
-using KosmaPanel;
-using KosmaPanel.Helpers;
+using KosmaPanel.Helpers.BashHelper;
 
-namespace KosmaPanel.Managers;
-
-public class PowerManager
+namespace KosmaPanel.Managers.PowerManager
 {
-    public static async void RebootServerLinux()
+    public class PowerManager
     {
-        await BashHelper.ExecuteCommand("sudo reboot");
+        public static async void RebootServerLinux()
+        {
+            await BashHelper.ExecuteCommand("sudo reboot");
+        }
+
+        public static async void ShutdownServerLinux()
+        {
+            await BashHelper.ExecuteCommand("sudo poweroff");
+        }
     }
 
-    public static async void ShutdownServerLinux()
-    {
-        await BashHelper.ExecuteCommand("sudo poweroff");
-    }
 }
