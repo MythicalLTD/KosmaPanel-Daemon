@@ -24,19 +24,19 @@ namespace KosmaPanel
         public static string? connectionString;
         public static void Main(string[] args)
         {
-            Console.Clear();
-            logger.Log(LogType.Info, mcascii);
-            if (!OperatingSystem.IsLinux())
-            {
-                logger.Log(LogType.Error, "Sorry you have to be on debain / linux to use our daemon");
-                Environment.Exit(0x0);
-            }
-            if (ArgumentManager.ProcessArguments(args))
-            {
-                Environment.Exit(0x0);
-            }
             try
             {
+                Console.Clear();
+                logger.Log(LogType.Info, mcascii);
+                if (!OperatingSystem.IsLinux())
+                {
+                    logger.Log(LogType.Error, "Sorry you have to be on debain / linux to use our daemon");
+                    Environment.Exit(0x0);
+                }
+                if (ArgumentManager.ProcessArguments(args))
+                {
+                    Environment.Exit(0x0);
+                }
                 logger.Log(LogType.Info, "Please wait while we start KosmaPanel");
                 LinuxMetricsService.getOsInfo();
                 DDosDetectionService dds = new DDosDetectionService();
@@ -53,7 +53,6 @@ namespace KosmaPanel
                 logger.Log(LogType.Error, "Sorry but i cant start the daemon: " + ex.Message);
                 Environment.Exit(0x0);
             }
-
         }
     }
 }
