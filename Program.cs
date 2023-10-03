@@ -10,7 +10,7 @@ namespace KosmaPanel
     public class Program
     {
 
-        public static string mcascii = @" 
+         public static string mcascii = @" 
   _  __                         _____                 _ 
  | |/ /                        |  __ \               | |
  | ' / ___  ___ _ __ ___   __ _| |__) |_ _ _ __   ___| |
@@ -27,7 +27,7 @@ namespace KosmaPanel
             try
             {
                 Console.Clear();
-                logger.Log(LogType.Info, mcascii);
+                logger.Log(LogType.Info, Program.mcascii);
                 if (!OperatingSystem.IsLinux())
                 {
                     logger.Log(LogType.Error, "Sorry you have to be on debain / linux to use our daemon");

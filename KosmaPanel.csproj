@@ -32,4 +32,19 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Salaros.ConfigParser" Version="0.3.8" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="config.ini" />
+    <None Remove="econfig.ini" />
+    <None Remove="ddosDetection.bash" />
+    <None Remove="logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="logs\**" />
+  </ItemGroup>
 </Project>
