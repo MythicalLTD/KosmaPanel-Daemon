@@ -10,7 +10,7 @@ namespace KosmaPanel
     public class Program
     {
 
-         public static string mcascii = @" 
+        public static string mcascii = @" 
   _  __                         _____                 _ 
  | |/ /                        |  __ \               | |
  | ' / ___  ___ _ __ ___   __ _| |__) |_ _ _ __   ___| |

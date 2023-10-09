@@ -39,16 +39,16 @@ namespace KosmaPanel.Services.DDosDetectionService
         {
             try
             {
-                Program.logger.Log(LogType.Info,"Starting DDoS detection");
+                Program.logger.Log(LogType.Info, "Starting DDoS detection");
                 if (!File.Exists("ddosDetection.bash"))
                 {
-                    Program.logger.Log(LogType.Info,"Downloading script");
+                    Program.logger.Log(LogType.Info, "Downloading script");
                     using var httpClient = new HttpClient();
                     var script = await httpClient.GetStringAsync("https://gist.githubusercontent.com/Marcel-Baumgartner/0310679f6f6e03a4bad26d784231fa13/raw/ddosDetection.sh");
                     await File.WriteAllTextAsync("ddosDetection.bash", script);
                 }
 
-                Program.logger.Log(LogType.Info,"Executing script...");
+                Program.logger.Log(LogType.Info, "Executing script...");
                 ScriptProcess = await BashHelper.ExecuteCommandRaw("bash ddosDetection.bash");
                 while (!ScriptProcess.StandardOutput.EndOfStream)
                 {
@@ -81,8 +81,10 @@ namespace KosmaPanel.Services.DDosDetectionService
 
                 await ScriptProcess.WaitForExitAsync();
                 Program.logger.Log(LogType.Error, "DDoS detection script stopped. Restart the daemon to start again");
-            } catch (Exception e) {
-                Program.logger.Log(LogType.Error, "Error running ddos detection: "+e.Message);
+            }
+            catch (Exception e)
+            {
+                Program.logger.Log(LogType.Error, "Error running ddos detection: " + e.Message);
             }
         }
     }

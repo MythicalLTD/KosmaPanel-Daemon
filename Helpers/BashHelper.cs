@@ -26,7 +26,7 @@ public class BashHelper
     public static Task<Process> ExecuteCommandRaw(string command)
     {
         Process process = new Process();
-        
+
         process.StartInfo.FileName = "/bin/bash";
         process.StartInfo.Arguments = $"-c \"{command.Replace("\"", "\\\"")}\"";
         process.StartInfo.UseShellExecute = false;
@@ -37,4 +37,4 @@ public class BashHelper
 
         return Task.FromResult(process);
     }
-}   
+}
