@@ -44,6 +44,40 @@ namespace KosmaPanel.Managers.LoggerManager
             Console.ResetColor();
             AppendToFile(logText);
         }
+        public void PurgeLogs()
+        {
+            try
+            {
+                string logDirectory = "logs";
+                string logDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), logDirectory);
+
+                if (Directory.Exists(logDirectoryPath))
+                {
+                    string[] logFiles = Directory.GetFiles(logDirectoryPath);
+                    foreach (string logFile in logFiles)
+                    {
+                        File.Delete(logFile);
+                    }
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("All log files purged.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Log directory not found.");
+                    Console.ResetColor();
+                }
+            }
+            catch (Exception ex)
+            {
+                string timestamp = DateTime.Now.ToString("HH:mm:ss");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[{timestamp}] [Error] Error purging log files: {ex.Message}");
+                Console.ResetColor();
+            }
+        }
 
         private void AppendToFile(string logText)
         {

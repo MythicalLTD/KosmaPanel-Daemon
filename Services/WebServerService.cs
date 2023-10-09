@@ -4,6 +4,7 @@ using System.Text;
 using KosmaPanel.Managers.ConfigManager;
 using KosmaPanel.Managers.LoggerManager;
 using KosmaPanel.Managers.PowerManager;
+using KosmaPanel.Managers.ServiceManager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -63,20 +64,59 @@ namespace KosmaPanel.Services.WebServerService
                         }
                     case "system/shutdown":
                         {
-                            PowerManager.ShutdownServerLinux();
-                            var rebootResponse = new
+                            var shutdownResponse = new
                             {
                                 message = "Server shutdown initiated",
                                 status = "Please wait..."
                             };
+
+                            var shutdownJson = JsonConvert.SerializeObject(shutdownResponse);
+                            var shutdownBuffer = Encoding.UTF8.GetBytes(shutdownJson);
+                            response.StatusCode = (int)HttpStatusCode.OK;
+                            response.ContentType = "application/json";
+                            response.ContentLength = shutdownBuffer.Length;
+                            await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            await Task.Delay(5000);
+                            PowerManager.ShutdownServerLinux();
+                            break;
+                        }
+                    case "daemon/shutdown":
+                        {
+                            var shutdownResponse = new
+                            {
+                                message = "Daemon shutdown initiated",
+                                status = "Please wait..."
+                            };
+
+                            var shutdownJson = JsonConvert.SerializeObject(shutdownResponse);
+                            var shutdownBuffer = Encoding.UTF8.GetBytes(shutdownJson);
+                            response.StatusCode = (int)HttpStatusCode.OK;
+                            response.ContentType = "application/json";
+                            response.ContentLength = shutdownBuffer.Length;
+                            await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            await Task.Delay(5000);
+                            await ServiceManager.Stop("daemon");
+                            break;
+                        }
+                    case "daemon/reboot":
+                        {
+                            var rebootResponse = new
+                            {
+                                message = "Daemon reboot initiated",
+                                status = "Please wait..."
+                            };
+
                             var rebootJson = JsonConvert.SerializeObject(rebootResponse);
                             var rebootBuffer = Encoding.UTF8.GetBytes(rebootJson);
                             response.StatusCode = (int)HttpStatusCode.OK;
                             response.ContentType = "application/json";
                             response.ContentLength = rebootBuffer.Length;
                             await response.Body.WriteAsync(rebootBuffer, 0, rebootBuffer.Length);
+                            await Task.Delay(5000);
+                            await ServiceManager.Restart("daemon");
                             break;
                         }
+
                     case "system/info":
                         {
                             var osInfo = new
@@ -114,18 +154,20 @@ namespace KosmaPanel.Services.WebServerService
                         }
                     case "system/reboot":
                         {
-                            PowerManager.RebootServerLinux();
                             var rebootResponse = new
                             {
                                 message = "Server reboot initiated",
                                 status = "Please wait..."
                             };
+
                             var rebootJson = JsonConvert.SerializeObject(rebootResponse);
                             var rebootBuffer = Encoding.UTF8.GetBytes(rebootJson);
                             response.StatusCode = (int)HttpStatusCode.OK;
                             response.ContentType = "application/json";
                             response.ContentLength = rebootBuffer.Length;
                             await response.Body.WriteAsync(rebootBuffer, 0, rebootBuffer.Length);
+                            await Task.Delay(5000);
+                            PowerManager.RebootServerLinux();
                             break;
                         }
                     case "test":
