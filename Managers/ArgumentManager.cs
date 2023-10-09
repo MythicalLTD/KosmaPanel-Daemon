@@ -114,7 +114,7 @@ namespace KosmaPanel.Managers.ArgumentManager
                         return true;
                     }
                     break;
-                case "-migrate-database-now":
+                case "-migrate-database":
                     try
                     {
                         MigrationHelper mg = new MigrationHelper();
@@ -124,6 +124,37 @@ namespace KosmaPanel.Managers.ArgumentManager
                     catch (Exception ex)
                     {
                         Program.logger.Log(LogType.Error, "Failed to migrate: " + ex.Message);
+                    }
+                    break;
+                case "-help":
+                    try
+                    {
+                        Console.WriteLine("╔≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳ KosmaPanel CLI ⊲≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡╗");
+                        Console.WriteLine("‖                                                                                                           ‖");
+                        Console.WriteLine("‖    -help                   ‖ Opens a help menu with the available commands.                               ‖");
+                        Console.WriteLine("‖    -version                ‖ See the version / build version of the CLI.                                  ‖");
+                        Console.WriteLine("‖    -migrate-database       ‖ Create and setup all tables in the database                                  ‖");
+                        Console.WriteLine("‖    -resetkey               ‖ Generate a new encryption key for KosmaPanel.                                ‖");
+                        Console.WriteLine("‖    --purgelogs             ‖ Delete all the cached logs for KosmaPanel.                                   ‖");
+                        Console.WriteLine("‖    --sethost               ‖ Set the host ip for KosmaPanel.                                              ‖");
+                        Console.WriteLine("‖    --setport               ‖ Set the host port for KosmaPanel.                                            ‖");
+                        Console.WriteLine("‖    --setkey                ‖ Set the host key for KosmaPanel.                                             ‖");
+                        Console.WriteLine("‖    --setsshhost            ‖ Set the ssh ip for KosmaPanel.                                               ‖");
+                        Console.WriteLine("‖    --setsshport            ‖ Set the ssh port for KosmaPanel.                                             ‖");
+                        Console.WriteLine("‖    --setsshusername        ‖ Set the ssh username for KosmaPanel.                                         ‖");
+                        Console.WriteLine("‖    --setsshpassword        ‖ Set the ssh password for KosmaPanel.                                         ‖");
+                        Console.WriteLine("‖    --setmysqlhost          ‖ Set the MySQL host for the connection.                                       ‖");
+                        Console.WriteLine("‖    --setmysqlport          ‖ Set the MySQL port for the connection.                                       ‖");
+                        Console.WriteLine("‖    --setmysqlusername      ‖ Set the MySQL username for the connection.                                   ‖");
+                        Console.WriteLine("‖    --setmysqlpassword      ‖ Set the MySQL password for the connection.                                   ‖");
+                        Console.WriteLine("‖    --setmysqldbname        ‖ Set the MySQL database name for the connection.                              ‖");
+                        Console.WriteLine("‖                                                                                                           ‖");
+                        Console.WriteLine("╚≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳ Copyright 2023 MythicalSystems ⊲≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡╝");
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.logger.Log(LogType.Error, "Failed to display help message: " + ex.Message);
                     }
                     break;
                 case "-purgelogs":
