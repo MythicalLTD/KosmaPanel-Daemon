@@ -8,3 +8,4 @@ econfig.ini
 /.vscode/
 FodyWeavers.xsd
 FodyWeavers.xml
+migrates.ini
