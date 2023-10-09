@@ -113,6 +113,18 @@ namespace KosmaPanel.Managers.ArgumentManager
                         return true;
                     }
                     break;
+                case "-purgelogs":
+                    try
+                    {
+                        Program.logger.PurgeLogs();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.logger.Log(LogType.Error, "Failed to purge the logs: " + ex.Message);
+
+                    }
+                    break;
                 case "-resetkey":
                     ConfigManager.ConfigManager.d_settings = Directory.GetCurrentDirectory() + @"/config.ini";
                     try
@@ -126,6 +138,7 @@ namespace KosmaPanel.Managers.ArgumentManager
                     catch (Exception ex)
                     {
                         Program.logger.Log(LogType.Error, $"Failed to generate a key: {ex.Message}");
+
                     }
                     break;
                 case "-version":
