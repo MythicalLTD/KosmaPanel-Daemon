@@ -1,4 +1,5 @@
 using KosmaPanel.Helpers.KeyChecker;
+using KosmaPanel.Helpers.MigrationHelper;
 using KosmaPanel.Managers.ConfigManager;
 using KosmaPanel.Managers.LoggerManager;
 
@@ -111,6 +112,18 @@ namespace KosmaPanel.Managers.ArgumentManager
                         string password = args[1];
                         ConfigManager.ConfigManager.UpdateSetting("Daemon", "mysql_password", password);
                         return true;
+                    }
+                    break;
+                case "-migrate-database-now":
+                    try
+                    {
+                        MigrationHelper mg = new MigrationHelper();
+                        mg.Now();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.logger.Log(LogType.Error, "Failed to migrate: " + ex.Message);
                     }
                     break;
                 case "-purgelogs":
