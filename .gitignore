@@ -4,3 +4,7 @@ config.ini
 /logs/
 ddosDetection.bash
 econfig.ini
+/.idea/
+/.vscode/
+FodyWeavers.xsd
+FodyWeavers.xml
