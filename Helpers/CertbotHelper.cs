@@ -1,42 +1,92 @@
 using System.Diagnostics;
+using System.Net;
 using KosmaPanel.Managers.LoggerManager;
 
 namespace KosmaPanel.Helpers.CertbotHelper
 {
     public class CertbotHelper
     {
-        private readonly string domain;
-        public CertbotHelper(string domain)
-        {
-            this.domain = domain;
-        }
-        public void GenerateCertificate()
+        public static void GenerateCertificate(string domain)
         {
             try
             {
-                string command = $"certbot certonly --apache --non-interactive --agree-tos --register-unsafely-without-email -d {domain}";
+                IPAddress[] addresses = Dns.GetHostAddresses(domain);
 
-                using (var process = new Process())
+                if (addresses.Length == 0)
                 {
-                    process.StartInfo.FileName = "/bin/bash";
-                    process.StartInfo.Arguments = $"-c \"{command}\"";
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.RedirectStandardError = true;
-                    process.Start();
+                    Program.logger.Log(LogType.Warning, $"Domain '{domain}' does not resolve to any IP address.");
+                }
+                else
+                {
+                    string command = $"certbot certonly --nginx --non-interactive --agree-tos --register-unsafely-without-email -d {domain}";
 
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    process.WaitForExit();
-
-                    if (process.ExitCode == 0)
+                    using (var process = new Process())
                     {
-                        Program.logger.Log(LogType.Info, "Certificate successfully obtained.");
+                        process.StartInfo.FileName = "/bin/bash";
+                        process.StartInfo.Arguments = $"-c \"{command}\"";
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.RedirectStandardOutput = true;
+                        process.StartInfo.RedirectStandardError = true;
+                        process.Start();
+
+                        string output = process.StandardOutput.ReadToEnd();
+                        string error = process.StandardError.ReadToEnd();
+
+                        process.WaitForExit();
+
+                        if (process.ExitCode == 0)
+                        {
+                            Program.logger.Log(LogType.Info, "Certificate successfully obtained.");
+                        }
+                        else
+                        {
+                            Program.logger.Log(LogType.Error, $"Error generating certificate: {error}");
+                        }
                     }
-                    else
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"An error occurred: {ex.Message}");
+            }
+
+        }
+        public static void RenewCertificate(string domain)
+        {
+            try
+            {
+                IPAddress[] addresses = Dns.GetHostAddresses(domain);
+
+                if (addresses.Length == 0)
+                {
+                    Program.logger.Log(LogType.Warning, $"Domain '{domain}' does not resolve to any IP address.");
+                }
+                else
+                {
+                    string command = $"certbot renew --cert-name {domain}";
+
+                    using (var process = new Process())
                     {
-                        Program.logger.Log(LogType.Error, $"Error generating certificate: {error}");
+                        process.StartInfo.FileName = "/bin/bash";
+                        process.StartInfo.Arguments = $"-c \"{command}\"";
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.RedirectStandardOutput = true;
+                        process.StartInfo.RedirectStandardError = true;
+                        process.Start();
+
+                        string output = process.StandardOutput.ReadToEnd();
+                        string error = process.StandardError.ReadToEnd();
+
+                        process.WaitForExit();
+
+                        if (process.ExitCode == 0)
+                        {
+                            Program.logger.Log(LogType.Info, "Certificate successfully renewed.");
+                        }
+                        else
+                        {
+                            Program.logger.Log(LogType.Error, $"Error  certificate: {error}");
+                        }
                     }
                 }
             }
