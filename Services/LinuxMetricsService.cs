@@ -141,13 +141,13 @@ namespace KosmaPanel.Services.LinuxMetricsService
                 kernel_name = kernelName.Replace("\n", "");
                 string cpuUsage = await GetCpuUsage();
                 cpu_usage = cpuUsage.Replace("\n", "");
-                Program.logger.Log(LogType.Info, "Operating System: " + os_name);
-                Program.logger.Log(LogType.Info, "Kernel: " + kernel_name);
-                Program.logger.Log(LogType.Info, "Uptime: " + uptime);
-                Program.logger.Log(LogType.Info, $"Disk: {disk_used} (Used) GB / {disk_free} GB (Free) / {disk_total} GB (Total)");
-                Program.logger.Log(LogType.Info, $"Ram: {ram_used} MB (Used) / {ram_free} MB (Free) / {ram_total} MB (Total)");
-                Program.logger.Log(LogType.Info, "CPU Model: " + cpu_model);
-                Program.logger.Log(LogType.Info, "CPU Usage: " + cpu_usage + "%/100%");
+                //Program.logger.Log(LogType.Info, "Operating System: " + os_name);
+                //Program.logger.Log(LogType.Info, "Kernel: " + kernel_name);
+                //Program.logger.Log(LogType.Info, "Uptime: " + uptime);
+                //Program.logger.Log(LogType.Info, $"Disk: {disk_used} (Used) GB / {disk_free} GB (Free) / {disk_total} GB (Total)");
+                //Program.logger.Log(LogType.Info, $"Ram: {ram_used} MB (Used) / {ram_free} MB (Free) / {ram_total} MB (Total)");
+                //Program.logger.Log(LogType.Info, "CPU Model: " + cpu_model);
+                //Program.logger.Log(LogType.Info, "CPU Usage: " + cpu_usage + "%/100%");
             }
             catch (Exception ex)
             {

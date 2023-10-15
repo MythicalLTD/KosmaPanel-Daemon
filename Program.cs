@@ -27,6 +27,7 @@ namespace KosmaPanel
             try
             {
                 Console.Clear();
+                LinuxMetricsService.getOsInfo();
                 logger.Log(LogType.Info, Program.mcascii);
                 if (!OperatingSystem.IsLinux())
                 {
@@ -37,11 +38,9 @@ namespace KosmaPanel
                 {
                     Environment.Exit(0x0);
                 }
-                logger.Log(LogType.Info, "Please wait while we start KosmaPanel");
-                LinuxMetricsService.getOsInfo();
+                logger.Log(LogType.Info, "Please wait while we start KosmaPanel Daemon");
                 DDosDetectionService dds = new DDosDetectionService();
                 dds.Start();
-                ConfigManager.CheckSettings();
                 connectionString = $"Server={ConfigManager.mysql_host};Port={ConfigManager.mysql_port};User ID={ConfigManager.mysql_username};Password={ConfigManager.mysql_password};Database={ConfigManager.mysql_name}";
                 logger.Log(LogType.Info, "Daemon started on: " + ConfigManager.GetSetting("Daemon", "host") + ":" + ConfigManager.GetSetting("Daemon", "port"));
                 logger.Log(LogType.Info, "Secret key: " + ConfigManager.GetSetting("Daemon", "key"));
