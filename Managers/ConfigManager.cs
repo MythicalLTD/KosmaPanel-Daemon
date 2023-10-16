@@ -8,7 +8,7 @@ namespace KosmaPanel.Managers.ConfigManager
     public class ConfigManager
     {
 
-        public static string d_settings = Directory.GetCurrentDirectory() + @"/config.ini";
+        public static string d_settings = "/etc/KosmaPanel/config.ini";
         public static string? mysql_host;
         public static string? mysql_port;
         public static string? mysql_username;

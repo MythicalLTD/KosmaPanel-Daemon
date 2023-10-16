@@ -1,3 +1,4 @@
+using System.Reflection;
 using KosmaPanel.Managers.ArgumentManager;
 using KosmaPanel.Managers.ConfigManager;
 using KosmaPanel.Managers.LoggerManager;
@@ -22,13 +23,18 @@ namespace KosmaPanel
         public static string version = "1.0.0";
         public static LoggerManager logger = new LoggerManager();
         public static string? connectionString;
+        public static string appWorkingDir = AppDomain.CurrentDomain.BaseDirectory;
+
+        
         public static void Main(string[] args)
         {
             try
             {
                 Console.Clear();
+                Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+                Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 LinuxMetricsService.getOsInfo();
-                logger.Log(LogType.Info, Program.mcascii);
+                logger.Log(LogType.Info, mcascii);
                 if (!OperatingSystem.IsLinux())
                 {
                     logger.Log(LogType.Error, "Sorry you have to be on debain / linux to use our daemon");

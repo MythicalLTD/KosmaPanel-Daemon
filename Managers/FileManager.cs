@@ -4,7 +4,7 @@ namespace KosmaPanel.Managers.FileManager
     {
         public bool MFolderExists() 
         {
-            string filePath = "migrate/info.md";
+            string filePath = "/etc/KosmaPanel/migrate/info.md";
             if (File.Exists(filePath)) {
                 return true;
             } else {

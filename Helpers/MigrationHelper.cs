@@ -2,13 +2,13 @@ using KosmaPanel.Managers.ConfigManager;
 using KosmaPanel.Managers.FileManager;
 using KosmaPanel.Managers.LoggerManager;
 using MySqlConnector;
-
+using KosmaPanel;
 namespace KosmaPanel.Helpers.MigrationHelper
 {
     public class MigrationHelper
     {
         public static string? connectionString;
-        private const string MigrationConfigFilePath = "migrates.ini";
+        private static string MigrationConfigFilePath = "/etc/KosmaPanel/migrates.ini";
         FileManager fm = new FileManager();
         public void Now()
         {
@@ -52,7 +52,7 @@ namespace KosmaPanel.Helpers.MigrationHelper
             {
                 getConnection();
 
-                string[] scriptFiles = Directory.GetFiles("migrate/", "*.sql")
+                string[] scriptFiles = Directory.GetFiles("/etc/KosmaPanel/migrate/", "*.sql")
                     .OrderBy(scriptFile => Convert.ToInt32(Path.GetFileNameWithoutExtension(scriptFile)))
                     .ToArray();
 

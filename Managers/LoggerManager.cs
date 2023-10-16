@@ -15,7 +15,7 @@ namespace KosmaPanel.Managers.LoggerManager
         {
             string logDirectory = "logs";
             string logFileName = "log.txt";
-            string logDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), logDirectory);
+            string logDirectoryPath = Path.Combine("/etc/KosmaPanel", logDirectory);
             logFilePath = Path.Combine(logDirectoryPath, logFileName);
             Directory.CreateDirectory(logDirectoryPath);
             RenameLogFile();
@@ -49,7 +49,7 @@ namespace KosmaPanel.Managers.LoggerManager
             try
             {
                 string logDirectory = "logs";
-                string logDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), logDirectory);
+                string logDirectoryPath = Path.Combine("/etc/KosmaPanel", logDirectory);
 
                 if (Directory.Exists(logDirectoryPath))
                 {
