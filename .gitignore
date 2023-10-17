@@ -9,3 +9,4 @@ econfig.ini
 FodyWeavers.xsd
 FodyWeavers.xml
 migrates.ini
+/images/*

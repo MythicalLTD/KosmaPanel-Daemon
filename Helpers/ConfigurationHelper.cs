@@ -40,7 +40,7 @@ public class ConfigurationHelper
         if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port))
         {
             Program.logger.Log(LogType.Error, "Invalid input. Please provide all the required values.");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
         try
         {
@@ -48,12 +48,12 @@ public class ConfigurationHelper
             ConfigManager.UpdateSetting("Daemon", "port", port);
 
             Program.logger.Log(LogType.Info, "Done we saved your settings in our configuration file");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
         catch (Exception ex)
         {
             Program.logger.Log(LogType.Error, $"Failed to connect to MySQL: {ex.Message}");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
     }
     public static void StartDBGUI()
@@ -117,7 +117,7 @@ public class ConfigurationHelper
         if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(dbName))
         {
             Program.logger.Log(LogType.Error, "Invalid input. Please provide all the required values.");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
         try
         {
@@ -132,12 +132,12 @@ public class ConfigurationHelper
             ConfigManager.UpdateSetting("Daemon", "mysql_db_name", dbName);
 
             Program.logger.Log(LogType.Info, "Done we saved your MySQL connection to your config file");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
         catch (Exception ex)
         {
             Program.logger.Log(LogType.Error, $"Failed to connect to MySQL: {ex.Message}");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
     }
 
@@ -190,7 +190,7 @@ public class ConfigurationHelper
         if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
             Program.logger.Log(LogType.Error, "Invalid input. Please provide all the required values.");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
         try
         {
@@ -223,12 +223,12 @@ public class ConfigurationHelper
             ConfigManager.UpdateSetting("Daemon", "ssh_password", password);
 
             Program.logger.Log(LogType.Info, "Done we saved your ssh connection to your config file");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
         catch (Exception ex)
         {
             Program.logger.Log(LogType.Error, $"Failed to connect to the ssh server: {ex.Message}");
-            Environment.Exit(0x0);
+            Program.Stop();
         }
     }
 

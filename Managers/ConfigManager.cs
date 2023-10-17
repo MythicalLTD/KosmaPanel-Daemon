@@ -25,7 +25,7 @@ namespace KosmaPanel.Managers.ConfigManager
             catch (Exception ex)
             {
                 Program.logger.Log(LogType.Error, "Failed to get setting: " + ex.Message);
-                Environment.Exit(0x0);
+                Program.Stop();
                 return null;
             }
         }
@@ -42,7 +42,7 @@ namespace KosmaPanel.Managers.ConfigManager
             catch (Exception ex)
             {
                 Program.logger.Log(LogType.Error, "Failed to update settings: " + ex.Message);
-                Environment.Exit(0x0);
+                Program.Stop();
             }
         }
     }
