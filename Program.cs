@@ -25,8 +25,7 @@ namespace KosmaPanel
         public static LoggerManager logger = new LoggerManager();
         public static string? connectionString;
         public static string appWorkingDir = AppDomain.CurrentDomain.BaseDirectory;
-
-
+        
         public static void Main(string[] args)
         {
             try

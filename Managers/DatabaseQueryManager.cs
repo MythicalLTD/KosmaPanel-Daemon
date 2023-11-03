@@ -3,11 +3,11 @@ using System.Data;
 
 namespace KosmaPanel.Managers.DatabaseQueryManager
 {
-    public class DatabaseQueryHelper
+    public class DatabaseQueryManager
     {
         private MySqlConnection _connection;
 
-        public DatabaseQueryHelper(MySqlConnection connection)
+        public DatabaseQueryManager(MySqlConnection connection)
         {
             _connection = connection;
         }

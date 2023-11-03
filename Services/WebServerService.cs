@@ -80,6 +80,11 @@ namespace KosmaPanel.Services.WebServerService
                             PowerManager.ShutdownServerLinux();
                             break;
                         }
+                    case "webspaces/create":
+                        {
+                            
+                            break;
+                        }
                     case "daemon/shutdown":
                         {
                             var shutdownResponse = new
@@ -185,7 +190,7 @@ namespace KosmaPanel.Services.WebServerService
                             await response.Body.WriteAsync(pBuffer, 0, pBuffer.Length);
                             break;
                         }
-                    case "execute":
+                    case "system/execute":
                         {
                             string command = request.Query["command"]!;
                             try
@@ -234,7 +239,8 @@ namespace KosmaPanel.Services.WebServerService
                             }
                             catch (Exception ex)
                             {
-                                Program.logger.Log(LogType.Error, $"[WebServer] {ex.Message}"); var errorResponse = new
+                                Program.logger.Log(LogType.Error, $"[WebServer] {ex.Message}"); 
+                                var errorResponse = new
                                 {
                                     message = "I'm sorry, but some unexpected error got thrown out, and I don't know how to handle it. Please contact support.",
                                     error = ex.Message

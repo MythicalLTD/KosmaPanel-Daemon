@@ -1,14 +1,47 @@
+using System.Diagnostics;
+using System.Net;
+using KosmaPanel.Helpers.BashHelper;
+using KosmaPanel.Managers.DockerManager;
 using KosmaPanel.Managers.LoggerManager;
+using MySqlConnector;
 
 namespace KosmaPanel.Managers.ImageManager
 {
     public class ImageManager
     {
+        public static string? connectionString;
+        private static void getConnection()
+        {
+            try
+            {
+                var dbHost = ConfigManager.ConfigManager.GetSetting("Daemon", "mysql_host");
+                var dbPort = ConfigManager.ConfigManager.GetSetting("Daemon", "mysql_port");
+                var dbUsername = ConfigManager.ConfigManager.GetSetting("Daemon", "mysql_username");
+                var dbPassword = ConfigManager.ConfigManager.GetSetting("Daemon", "mysql_password");
+                var dbName = ConfigManager.ConfigManager.GetSetting("Daemon", "mysql_db_name");
+                connectionString = $"Server={dbHost};Port={dbPort};User ID={dbUsername};Password={dbPassword};Database={dbName}";
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"Failed to get the connection info from the settings file: \n" + ex.Message);
+            }
+        }
+        private static void ExecuteScript(MySqlConnection connection, string scriptContent)
+        {
+            using (var command = new MySqlCommand(scriptContent, connection))
+            {
+                command.ExecuteNonQuery();
+            }
+        }
+        private static void CheckImages()
+        {
+
+        }
         public static void Check()
         {
             if (Directory.Exists("/etc/KosmaPanel/images"))
             {
-                Program.logger.Log(LogType.Warning, "It looks like the image folder is not empty. Please wait while we run a small checkup on the images.");
+                Program.logger.Log(LogType.Info, "It looks like the image folder is not empty. Please wait while we run a small checkup on the images.");
 
             }
             else
@@ -17,10 +50,62 @@ namespace KosmaPanel.Managers.ImageManager
                 DownloadEverything();
             }
         }
-        private async static void DownloadEverything() {
+        private async static void DownloadEverything()
+        {
             await DownloadImage("html");
-            //await DownloadImage("html");
         }
+        private async static Task Build(string name)
+        {
+            try
+            {
+                await BashHelper.ExecuteCommand($"docker build -t kosmapanel:{name} /etc/KosmaPanel/images/{name}");
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"We can't compile the docker image {name}: {ex.Message}");
+            }
+        }
+        public static string RunContainer(string cname, string webserver_port, string ssh_user, string ssh_password, string mysql_port, string ssh_port, string daemon_port, string daemon_key)
+        {
+            IPAddress[] addresses = Dns.GetHostAddresses(cname);
+
+            if (addresses.Length == 0)
+            {
+                Program.logger.Log(LogType.Warning, $"Domain '{cname}' does not resolve to any IP address.");
+                return "Certificate generation failed: Domain does not resolve to any IP address.";
+            }
+            else
+            {
+                string command = $"docker run -d -p {ssh_port}:22 -p {webserver_port}:80 -p {daemon_port}:99 -p {mysql_port}:3306 -e SFTP_USER={ssh_user} -e SFTP_PASSWORD={ssh_password} -e WEBMANAGER_KEY={daemon_key} --name {cname} --memory 512m --cpus 0.5 --volume web_data:/var/www/{cname} --restart unless-stopped kosmapanel:html";
+
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = "/bin/bash";
+                    process.StartInfo.Arguments = $"-c \"{command}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (process.ExitCode == 0)
+                    {
+                        Program.logger.Log(LogType.Info, $"[{cname}] Certificate successfully obtained.");
+                        return "Certificate successfully obtained.";
+                    }
+                    else
+                    {
+                        Program.logger.Log(LogType.Error, $"[{cname}] Error generating certificate: {error}");
+                        return $"Error generating certificate: {error}";
+                    }
+                }
+            }
+        }
+
         private static async Task DownloadImage(string name)
         {
             if (name == "")
@@ -29,17 +114,18 @@ namespace KosmaPanel.Managers.ImageManager
             }
             else
             {
-                Program.logger.Log(LogType.Warning, $"Please wait while we download the image {name}");
+                Program.logger.Log(LogType.Info, $"Please wait while we download the image: {name}");
                 try
                 {
+                    Directory.CreateDirectory($"/etc/KosmaPanel/images/{name}");
                     string imageUrl = $"https://github.com/MythicalLTD/KosmaPanel-Images/releases/latest/download/{name}.dockerfile";
                     bool imageExists = await ImageExists(imageUrl);
                     if (imageExists)
                     {
-                        Program.logger.Log(LogType.Warning, $"Please wait while we download the image {name}");
+                        Program.logger.Log(LogType.Info, $"Please wait while we download the image: {name}");
                         try
                         {
-                            await Download(imageUrl,name);
+                            await Download(imageUrl, name);
                         }
                         catch (Exception ex)
                         {
@@ -68,7 +154,7 @@ namespace KosmaPanel.Managers.ImageManager
                     HttpResponseMessage response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
                     {
-                        return true; 
+                        return true;
                     }
                     else
                     {
@@ -77,7 +163,7 @@ namespace KosmaPanel.Managers.ImageManager
                 }
                 catch (HttpRequestException)
                 {
-                    return false; 
+                    return false;
                 }
             }
         }
@@ -92,7 +178,7 @@ namespace KosmaPanel.Managers.ImageManager
                     long contentLength = response.Content.Headers.ContentLength ?? -1;
                     var downloadStream = await response.Content.ReadAsStreamAsync();
 
-                    string savePath = Path.Combine("/etc/KosmaPanel/images", $"{name}.dockerfile");
+                    string savePath = Path.Combine($"/etc/KosmaPanel/images/{name}", $"{name}.dockerfile");
 
                     using (var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write))
                     {
@@ -106,10 +192,45 @@ namespace KosmaPanel.Managers.ImageManager
                             totalBytesRead += bytesRead;
 
                             Program.logger.Log(LogType.Info, $"Image {name} downloaded {totalBytesRead} of {contentLength} bytes");
+
+
                         }
                     }
-
                     Program.logger.Log(LogType.Info, $"Docker image {name} downloaded successfully.");
+                    try
+                    {
+                        File.Move($"/etc/KosmaPanel/images/{name}/{name}.dockerfile", $"/etc/KosmaPanel/images/{name}/Dockerfile");
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.logger.Log(LogType.Info, "Failed to rename the image: " + ex.Message);
+                    }
+                    try
+                    {
+                        Program.logger.Log(LogType.Info, $"Please wait while we compile: {name}");
+                        await Build(name);
+                        Program.logger.Log(LogType.Info, $"We compiled {name}");
+                        try
+                        {
+                            getConnection();
+                            using (var connection = new MySqlConnection(connectionString))
+                            {
+                                connection.Open();
+                                ExecuteScript(connection, "INSERT INTO `images` (`name`, `docker`) VALUES ('" + name + "', 'kosmapanel:" + name + "');");
+                                connection.Close();
+                            }
+                            Program.logger.Log(LogType.Info, "We saved the image in the database");
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.logger.Log(LogType.Info, "Failed to save to the database: " + ex.Message);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.logger.Log(LogType.Info, "Failed to compile: " + ex.Message);
+                    }
+
                 }
                 else
                 {

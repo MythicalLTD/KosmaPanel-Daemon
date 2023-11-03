@@ -6,52 +6,104 @@ namespace KosmaPanel.Helpers.CertbotHelper
 {
     public class CertbotHelper
     {
-        public static void GenerateCertificate(string domain)
+        public static string GenerateCertificate(string domain, string webserver)
         {
             try
             {
-                IPAddress[] addresses = Dns.GetHostAddresses(domain);
-
-                if (addresses.Length == 0)
+                if (webserver == "nginx")
                 {
-                    Program.logger.Log(LogType.Warning, $"Domain '{domain}' does not resolve to any IP address.");
+                    IPAddress[] addresses = Dns.GetHostAddresses(domain);
+
+                    if (addresses.Length == 0)
+                    {
+                        Program.logger.Log(LogType.Warning, $"Domain '{domain}' does not resolve to any IP address.");
+                        return $"[{domain}] Certificate generation failed: Domain does not resolve to any IP address.";
+                    }
+                    else
+                    {
+                        string command = $"certbot certonly --nginx --non-interactive --agree-tos --register-unsafely-without-email -d {domain}";
+
+                        using (var process = new Process())
+                        {
+                            process.StartInfo.FileName = "/bin/bash";
+                            process.StartInfo.Arguments = $"-c \"{command}\"";
+                            process.StartInfo.UseShellExecute = false;
+                            process.StartInfo.RedirectStandardOutput = true;
+                            process.StartInfo.RedirectStandardError = true;
+                            process.Start();
+
+                            string output = process.StandardOutput.ReadToEnd();
+                            string error = process.StandardError.ReadToEnd();
+
+                            process.WaitForExit();
+
+                            if (process.ExitCode == 0)
+                            {
+                                Program.logger.Log(LogType.Info, $"[{domain}] Certificate successfully obtained.");
+                                return "Certificate successfully obtained.";
+                            }
+                            else
+                            {
+                                Program.logger.Log(LogType.Error, $"[{domain}] Error generating certificate: {error}");
+                                return $"Error generating certificate: {error}";
+                            }
+                        }
+                    }
+                }
+                else if (webserver == "apache2")
+                {
+                    IPAddress[] addresses = Dns.GetHostAddresses(domain);
+
+                    if (addresses.Length == 0)
+                    {
+                        Program.logger.Log(LogType.Warning, $"Domain '{domain}' does not resolve to any IP address.");
+                        return "Certificate generation failed: Domain does not resolve to any IP address.";
+                    }
+                    else
+                    {
+                        string command = $"certbot certonly --apache --non-interactive --agree-tos --register-unsafely-without-email -d {domain}";
+
+                        using (var process = new Process())
+                        {
+                            process.StartInfo.FileName = "/bin/bash";
+                            process.StartInfo.Arguments = $"-c \"{command}\"";
+                            process.StartInfo.UseShellExecute = false;
+                            process.StartInfo.RedirectStandardOutput = true;
+                            process.StartInfo.RedirectStandardError = true;
+                            process.Start();
+
+                            string output = process.StandardOutput.ReadToEnd();
+                            string error = process.StandardError.ReadToEnd();
+
+                            process.WaitForExit();
+
+                            if (process.ExitCode == 0)
+                            {
+                                Program.logger.Log(LogType.Info, $"[{domain}] Certificate successfully obtained.");
+                                return "Certificate successfully obtained.";
+                            }
+                            else
+                            {
+                                Program.logger.Log(LogType.Error, $"[{domain}] Error generating certificate: {error}");
+                                return $"Error generating certificate: {error}";
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    string command = $"certbot certonly --nginx --non-interactive --agree-tos --register-unsafely-without-email -d {domain}";
-
-                    using (var process = new Process())
-                    {
-                        process.StartInfo.FileName = "/bin/bash";
-                        process.StartInfo.Arguments = $"-c \"{command}\"";
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.RedirectStandardOutput = true;
-                        process.StartInfo.RedirectStandardError = true;
-                        process.Start();
-
-                        string output = process.StandardOutput.ReadToEnd();
-                        string error = process.StandardError.ReadToEnd();
-
-                        process.WaitForExit();
-
-                        if (process.ExitCode == 0)
-                        {
-                            Program.logger.Log(LogType.Info, "Certificate successfully obtained.");
-                        }
-                        else
-                        {
-                            Program.logger.Log(LogType.Error, $"Error generating certificate: {error}");
-                        }
-                    }
+                    Program.logger.Log(LogType.Error, $"[{domain}] Please define a webserver that exists: nginx | apache2");
+                    return $"An error occurred";
                 }
             }
             catch (Exception ex)
             {
-                Program.logger.Log(LogType.Error, $"An error occurred: {ex.Message}");
+                Program.logger.Log(LogType.Error, $"[{domain}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
             }
-
         }
-        public static void RenewCertificate(string domain)
+
+        public static string RenewCertificate(string domain)
         {
             try
             {
@@ -60,6 +112,7 @@ namespace KosmaPanel.Helpers.CertbotHelper
                 if (addresses.Length == 0)
                 {
                     Program.logger.Log(LogType.Warning, $"Domain '{domain}' does not resolve to any IP address.");
+                    return "Certificate generation failed: Domain does not resolve to any IP address.";
                 }
                 else
                 {
@@ -81,18 +134,21 @@ namespace KosmaPanel.Helpers.CertbotHelper
 
                         if (process.ExitCode == 0)
                         {
-                            Program.logger.Log(LogType.Info, "Certificate successfully renewed.");
+                            Program.logger.Log(LogType.Info, $"[{domain}] Certificate successfully obtained.");
+                            return "Certificate successfully obtained.";
                         }
                         else
                         {
-                            Program.logger.Log(LogType.Error, $"Error  certificate: {error}");
+                            Program.logger.Log(LogType.Error, $"[{domain}] Error generating certificate: {error}");
+                            return $"Error generating certificate: {error}";
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Program.logger.Log(LogType.Error, $"An error occurred: {ex.Message}");
+                Program.logger.Log(LogType.Error, $"[{domain}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
             }
         }
     }
