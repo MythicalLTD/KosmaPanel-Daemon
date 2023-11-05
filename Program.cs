@@ -1,3 +1,4 @@
+using KosmaPanel.Helpers.WebServerHelper;
 using KosmaPanel.Managers.ArgumentManager;
 using KosmaPanel.Managers.ConfigManager;
 using KosmaPanel.Managers.ImageManager;

@@ -146,6 +146,24 @@ namespace KosmaPanel.Managers.ImageManager
                 await DownloadImage(imageName);
             }
         }
+
+        public static string CheckImageExists_String(string imageName)
+        {
+            bool imageExistsInFolder = File.Exists($"/etc/KosmaPanel/images/{imageName}/Dockerfile");
+
+            bool imageExistsInDatabase = ImageExistsInDatabase(imageName);
+
+            if (imageExistsInFolder && imageExistsInDatabase)
+            {
+                Program.logger.Log(LogType.Info, $"Image '{imageName}' exists in both the folder and the database.");
+                return $"Image exists in both the folder and the database.";
+            }
+            else
+            {
+                return "Failed to find the image.";
+            }
+        }
+
         private static bool ImageExistsInDatabase(string imageName)
         {
             getConnection();
@@ -172,9 +190,9 @@ namespace KosmaPanel.Managers.ImageManager
                     while (reader.Read())
                     {
                         string? imageName = reader["name"].ToString();
-                        #pragma warning disable
+#pragma warning disable
                         CheckImageExists(imageName);
-                        #pragma warning restore
+#pragma warning restore
                     }
                 }
                 connection.Close();

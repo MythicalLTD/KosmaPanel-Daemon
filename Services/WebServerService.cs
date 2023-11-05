@@ -1,10 +1,12 @@
 
 using System.Net;
 using System.Text;
+using KosmaPanel.Helpers.WebServerHelper;
 using KosmaPanel.Managers.ConfigManager;
 using KosmaPanel.Managers.LoggerManager;
 using KosmaPanel.Managers.PowerManager;
 using KosmaPanel.Managers.ServiceManager;
+using KosmaPanel.Managers.WebSpaceManager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -82,7 +84,38 @@ namespace KosmaPanel.Services.WebServerService
                         }
                     case "webspaces/create":
                         {
-                            
+                            //webserver_port ssh_user ssh_password mysql_port ssh_port daemon_port daemon_key daemon_domain img_name 
+
+                            string daemon_domain = request.Query["domain"]!;
+                            string webserver_port = request.Query["webserver_port"];
+                            string mysql_port = request.Query["mysql_port"];
+                            string daemon_port = request.Query["daemon_port"];
+                            string ssh_user = request.Query["ssh_user"];
+                            string ssh_password = request.Query["ssh_password"];
+                            string ssh_port = request.Query["ssh_port"];
+                            string daemon_key = request.Query["daemon_key"];
+                            string img_name = request.Query["img_name"];
+                            string wb = await WebSpaceManager.New(webserver_port, ssh_user, ssh_password, mysql_port, ssh_port, daemon_port, daemon_key, daemon_domain, img_name);
+                            if (wb == "We just created the website!")
+                            {
+
+                            }
+                            else
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "Failed to create the website",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                                break;
+                            }
                             break;
                         }
                     case "daemon/shutdown":
@@ -239,7 +272,7 @@ namespace KosmaPanel.Services.WebServerService
                             }
                             catch (Exception ex)
                             {
-                                Program.logger.Log(LogType.Error, $"[WebServer] {ex.Message}"); 
+                                Program.logger.Log(LogType.Error, $"[WebServer] {ex.Message}");
                                 var errorResponse = new
                                 {
                                     message = "I'm sorry, but some unexpected error got thrown out, and I don't know how to handle it. Please contact support.",
