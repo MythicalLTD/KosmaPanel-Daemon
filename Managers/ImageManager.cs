@@ -1,7 +1,4 @@
-using System.Diagnostics;
-using System.Net;
 using KosmaPanel.Helpers.BashHelper;
-using KosmaPanel.Managers.DockerManager;
 using KosmaPanel.Managers.LoggerManager;
 using MySqlConnector;
 
@@ -33,16 +30,12 @@ namespace KosmaPanel.Managers.ImageManager
                 command.ExecuteNonQuery();
             }
         }
-        private static void CheckImages()
-        {
-
-        }
         public static void Check()
         {
             if (Directory.Exists("/etc/KosmaPanel/images"))
             {
                 Program.logger.Log(LogType.Info, "It looks like the image folder is not empty. Please wait while we run a small checkup on the images.");
-
+                CheckAllImages();
             }
             else
             {
@@ -63,46 +56,6 @@ namespace KosmaPanel.Managers.ImageManager
             catch (Exception ex)
             {
                 Program.logger.Log(LogType.Error, $"We can't compile the docker image {name}: {ex.Message}");
-            }
-        }
-        public static string RunContainer(string cname, string webserver_port, string ssh_user, string ssh_password, string mysql_port, string ssh_port, string daemon_port, string daemon_key)
-        {
-            IPAddress[] addresses = Dns.GetHostAddresses(cname);
-
-            if (addresses.Length == 0)
-            {
-                Program.logger.Log(LogType.Warning, $"Domain '{cname}' does not resolve to any IP address.");
-                return "Certificate generation failed: Domain does not resolve to any IP address.";
-            }
-            else
-            {
-                string command = $"docker run -d -p {ssh_port}:22 -p {webserver_port}:80 -p {daemon_port}:99 -p {mysql_port}:3306 -e SFTP_USER={ssh_user} -e SFTP_PASSWORD={ssh_password} -e WEBMANAGER_KEY={daemon_key} --name {cname} --memory 512m --cpus 0.5 --volume web_data:/var/www/{cname} --restart unless-stopped kosmapanel:html";
-
-                using (var process = new Process())
-                {
-                    process.StartInfo.FileName = "/bin/bash";
-                    process.StartInfo.Arguments = $"-c \"{command}\"";
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.RedirectStandardError = true;
-                    process.Start();
-
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    process.WaitForExit();
-
-                    if (process.ExitCode == 0)
-                    {
-                        Program.logger.Log(LogType.Info, $"[{cname}] Certificate successfully obtained.");
-                        return "Certificate successfully obtained.";
-                    }
-                    else
-                    {
-                        Program.logger.Log(LogType.Error, $"[{cname}] Error generating certificate: {error}");
-                        return $"Error generating certificate: {error}";
-                    }
-                }
             }
         }
 
@@ -167,7 +120,77 @@ namespace KosmaPanel.Managers.ImageManager
                 }
             }
         }
+        public static async void CheckImageExists(string imageName)
+        {
+            bool imageExistsInFolder = File.Exists($"/etc/KosmaPanel/images/{imageName}/Dockerfile");
 
+            bool imageExistsInDatabase = ImageExistsInDatabase(imageName);
+
+            if (imageExistsInFolder && imageExistsInDatabase)
+            {
+                Program.logger.Log(LogType.Info, $"Image '{imageName}' exists in both the folder and the database.");
+            }
+            else if (!imageExistsInFolder && imageExistsInDatabase)
+            {
+                Program.logger.Log(LogType.Info, $"Image '{imageName}' exists in the database but not in the folder. Downloading...");
+                await DownloadImage(imageName);
+            }
+            else if (imageExistsInFolder && !imageExistsInDatabase)
+            {
+                Program.logger.Log(LogType.Info, $"Image '{imageName}' exists in the folder but not in the database. Adding to the database...");
+                AddImageToDatabase(imageName);
+            }
+            else
+            {
+                Program.logger.Log(LogType.Info, $"Image '{imageName}' does not exist in the folder or the database. Downloading...");
+                await DownloadImage(imageName);
+            }
+        }
+        private static bool ImageExistsInDatabase(string imageName)
+        {
+            getConnection();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new MySqlCommand("SELECT COUNT(*) FROM images WHERE name = @imageName", connection))
+                {
+                    command.Parameters.AddWithValue("@imageName", imageName);
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+        public static void CheckAllImages()
+        {
+            getConnection();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new MySqlCommand("SELECT name FROM images", connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string? imageName = reader["name"].ToString();
+                        #pragma warning disable
+                        CheckImageExists(imageName);
+                        #pragma warning restore
+                    }
+                }
+                connection.Close();
+            }
+        }
+
+        private static void AddImageToDatabase(string imageName)
+        {
+            getConnection();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                ExecuteScript(connection, "INSERT INTO `images` (`name`, `docker`) VALUES (@imageName, @dockerName)");
+                connection.Close();
+            }
+        }
         private static async Task Download(string imageUrl, string name)
         {
             using (var httpClient = new HttpClient())

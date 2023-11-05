@@ -4,7 +4,7 @@ namespace KosmaPanel.Managers.VolumeManager
 {
     public class VolumeManager
     {
-        private static readonly string VolumePath = "/etc/KosmaPanel/volumes"; // Set the desired path
+        private static readonly string VolumePath = "/etc/KosmaPanel/volumes";
 
         public static string Create(string volumeName, string size)
         {
