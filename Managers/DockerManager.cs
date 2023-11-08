@@ -16,25 +16,20 @@ namespace KosmaPanel.Managers.DockerManager
 
         public static string RunContainerWithVolume(string cname, string webserver_port, string ssh_user, string ssh_password, string mysql_port, string ssh_port, string daemon_port, string daemon_key, string type)
         {
-            string volumeName = $"{cname}_web_data";
-            string volumePath = $"/etc/KosmaPanel/volumes/{volumeName}";
-
-            if (!Directory.Exists(volumePath))
+            string volumeName = cname;
+            string volumeCreationResult = VolumeManager.VolumeManager.Create(volumeName, "1g");
+            if (!volumeCreationResult.StartsWith("Volume created successfully"))
             {
-                string volumeCreationResult = VolumeManager.VolumeManager.Create(volumeName, "1g");
-                if (!volumeCreationResult.StartsWith("Volume created successfully"))
-                {
-                    Program.logger.Log(LogType.Error, $"Error creating volume: {volumeCreationResult}");
-                    return $"Error creating volume: {volumeCreationResult}";
-                }
+                Program.logger.Log(LogType.Error, $"Error creating volume: {volumeCreationResult}");
+                return $"Error creating volume: {volumeCreationResult}";
             }
 
-            string command = $"docker run -d -p {ssh_port}:22 -p {webserver_port}:80 -p {daemon_port}:99 -p {mysql_port}:3306 -e SFTP_USER={ssh_user} -e SFTP_PASSWORD={ssh_password} -e WEBMANAGER_KEY={daemon_key} --name {cname} --memory 512m --cpus 0.5 --volume {volumeName}:/var/www/html --restart unless-stopped kosmapanel:{type}";
+            string volumePathOnHost = "/etc/KosmaPanel/volumes";
 
             using (var process = new Process())
             {
-                process.StartInfo.FileName = "/bin/bash";
-                process.StartInfo.Arguments = $"-c \"{command}\"";
+                process.StartInfo.FileName = "docker";
+                process.StartInfo.Arguments = $"run -d -p {ssh_port}:22 -p {webserver_port}:80 -p {daemon_port}:99 -p {mysql_port}:3306 -e SFTP_USER={ssh_user} -e SFTP_PASSWORD={ssh_password} -e WEBMANAGER_KEY={daemon_key} --name {cname} --memory 512m --cpus 0.5 --volume {volumePathOnHost}:/var/www/html --restart unless-stopped kosmapanel:{type}";
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
@@ -58,6 +53,84 @@ namespace KosmaPanel.Managers.DockerManager
             }
         }
 
+        public static string KillContainer(string cname)
+        {
+            try
+            {
+                string command = $"docker kill {cname}";
+
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = "/bin/bash";
+                    process.StartInfo.Arguments = $"-c \"{command}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (process.ExitCode == 0)
+                    {
+                        Program.logger.Log(LogType.Info, $"[{cname}] Container successfully killed.");
+                        return "Container successfully killed.";
+                    }
+                    else
+                    {
+                        Program.logger.Log(LogType.Error, $"[{cname}] Error while killing the container: {error}");
+                        return $"Error while killing the container: {cname}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"[{cname}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
+        public static string DeleteContainer(string cname)
+        {
+            try
+            {
+                string command = $"docker rm {cname}";
+
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = "/bin/bash";
+                    process.StartInfo.Arguments = $"-c \"{command}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (process.ExitCode == 0)
+                    {
+                        Program.logger.Log(LogType.Info, $"[{cname}] Container successfully deleted.");
+                        return "Container successfully deleted.";
+                    }
+                    else
+                    {
+                        Program.logger.Log(LogType.Error, $"[{cname}] Error while deleting the container: {error}");
+                        return $"Error while deleting the container: {cname}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"[{cname}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
         public async Task<IList<ContainerListResponse>> ListContainersAsync()
         {
             var containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters()
@@ -67,22 +140,22 @@ namespace KosmaPanel.Managers.DockerManager
             return containers;
         }
 
-        public async Task StartContainerAsync(string containerId)
+        public async Task IDStartContainerAsync(string containerId)
         {
             await _dockerClient.Containers.StartContainerAsync(containerId, new ContainerStartParameters());
         }
 
-        public async Task StopContainerAsync(string containerId)
+        public async Task IDStopContainerAsync(string containerId)
         {
             await _dockerClient.Containers.StopContainerAsync(containerId, new ContainerStopParameters());
         }
 
-        public async Task RemoveContainerAsync(string containerId)
+        public async Task IDRemoveContainerAsync(string containerId)
         {
             await _dockerClient.Containers.RemoveContainerAsync(containerId, new ContainerRemoveParameters());
         }
 
-        public async Task<bool> ContainerExistsAsync(string containerId)
+        public async Task<bool> IDContainerExistsAsync(string containerId)
         {
             var containers = await ListContainersAsync();
             return containers.Any(c => c.ID == containerId);

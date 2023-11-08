@@ -35,7 +35,26 @@ namespace KosmaPanel.Helpers.WebServerHelper
                 }
             }
         }
+        public static async Task<string> Remove(string domain) {
 
+            string filePath = $"/etc/nginx/sites-available/{domain}.conf";
+            string filePathEnabled = $"/etc/nginx/sites-enabled/{domain}.conf";
+            try
+            {
+                string disbaleCommandE = $"rm {filePathEnabled}";
+                string disbaleCommandA = $"rm {filePath}";
+                
+                await BashHelper.BashHelper.ExecuteCommand(disbaleCommandE);
+                await BashHelper.BashHelper.ExecuteCommand(disbaleCommandA);
+                Program.logger.Log(LogType.Info, $"[{domain}] We deleted the nginx file.");
+                return "We created the nginx file.";
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"[{domain}] Failed to delete the nginx file: {ex.Message}");
+                return $"Failed to delete the nginx file: {ex.Message}";
+            }
+        }
         public static async Task<string> New(string domain, string port)
         {
 

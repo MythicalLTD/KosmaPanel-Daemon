@@ -4,17 +4,13 @@ namespace KosmaPanel.Managers.VolumeManager
 {
     public class VolumeManager
     {
-        private static readonly string VolumePath = "/etc/KosmaPanel/volumes";
-
         public static string Create(string volumeName, string size)
         {
-            EnsureVolumePathExists();
-            string createVolumeCommand = $"docker volume create --name {volumeName} --opt type=none --opt device={VolumePath}/{volumeName} --opt o=size={size}";
-
+            string deviceOption = "/etc/KosmaPanel/volumes";
             using (var process = new Process())
             {
-                process.StartInfo.FileName = "/bin/bash";
-                process.StartInfo.Arguments = $"-c \"{createVolumeCommand}\"";
+                process.StartInfo.FileName = "docker";
+                process.StartInfo.Arguments = $"volume create --name {volumeName} --opt type=none --opt device={deviceOption} --opt o=size={size}";
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
@@ -35,21 +31,15 @@ namespace KosmaPanel.Managers.VolumeManager
                 }
             }
         }
-        private static void EnsureVolumePathExists()
-        {
-            if (!Directory.Exists(VolumePath))
-            {
-                Directory.CreateDirectory(VolumePath);
-            }
-        }
+
         public static string Delete(string volumeName)
         {
             string deleteVolumeCommand = $"docker volume rm {volumeName}";
 
             using (var process = new Process())
             {
-                process.StartInfo.FileName = "/bin/bash";
-                process.StartInfo.Arguments = $"-c \"{deleteVolumeCommand}\"";
+                process.StartInfo.FileName = "docker";
+                process.StartInfo.Arguments = $"volume rm {volumeName}";
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
@@ -77,8 +67,8 @@ namespace KosmaPanel.Managers.VolumeManager
 
             using (var process = new Process())
             {
-                process.StartInfo.FileName = "/bin/bash";
-                process.StartInfo.Arguments = $"-c \"{resizeVolumeCommand}\"";
+                process.StartInfo.FileName = "docker";
+                process.StartInfo.Arguments = $"volume resize {volumeName} --size {newSize}";
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;

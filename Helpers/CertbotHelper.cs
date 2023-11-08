@@ -6,6 +6,45 @@ namespace KosmaPanel.Helpers.CertbotHelper
 {
     public class CertbotHelper
     {
+        public static string DeleteCertificate(string domain)
+        {
+            try
+            {
+                string command = $"sudo certbot delete --cert-name {domain}";
+
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = "/bin/bash";
+                    process.StartInfo.Arguments = $"-c \"{command}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (process.ExitCode == 0)
+                    {
+                        Program.logger.Log(LogType.Info, $"[{domain}] Certificate successfully deleted.");
+                        return "Certificate successfully deleted.";
+                    }
+                    else
+                    {
+                        Program.logger.Log(LogType.Error, $"[{domain}] Error while removing the certificate: {error}");
+                        return $"Error removing the certificate: {error}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"[{domain}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
         public static string GenerateCertificate(string domain)
         {
             try

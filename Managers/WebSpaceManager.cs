@@ -6,6 +6,66 @@ namespace KosmaPanel.Managers.WebSpaceManager
 {
     public class WebSpaceManager
     {
+        public static async Task<string> Remove(string cname)
+        {
+            try
+            {
+                if (cname == null)
+                {
+                    return "Please provide all required values";
+
+                }
+                else
+                {
+                    string wbhelper = await WebServerHelper.Remove(cname);
+                    if (wbhelper == "We created the nginx file.")
+                    {
+                        string webserverstauts = WebServerHelper.Restart();
+                        if (webserverstauts == "WebServer successfully restarted.")
+                        {
+                            string certbotstatus = CertbotHelper.DeleteCertificate(cname);
+                            if (certbotstatus == "Certificate successfully deleted.")
+                            {
+                                string killctstatus = DockerManager.DockerManager.KillContainer(cname);
+                                if (killctstatus == "Container successfully killed.")
+                                {
+                                    string rmctstatus = DockerManager.DockerManager.DeleteContainer(cname);
+                                    if (rmctstatus == "Container successfully deleted.")
+                                    {
+                                        return "We just deleted the website!";
+                                    }
+                                    else
+                                    {
+                                        return rmctstatus;
+                                    }
+                                }
+                                else
+                                {
+                                    return killctstatus;
+                                }
+                            }
+                            else
+                            {
+                                return certbotstatus;
+                            }
+                        }
+                        else
+                        {
+                            return webserverstauts;
+                        }
+                    }
+                    else
+                    {
+                        return wbhelper;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"An error occurred: {ex.Message}";
+
+            }
+        }
         public static async Task<string> New(string webserver_port, string ssh_user, string ssh_password, string mysql_port, string ssh_port, string daemon_port, string daemon_key, string daemon_domain, string img_name)
         {
             try
