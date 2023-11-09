@@ -66,6 +66,114 @@ namespace KosmaPanel.Managers.WebSpaceManager
 
             }
         }
+
+        public static string Stop(string cname)
+        {
+            try
+            {
+                if (cname == null)
+                {
+                    return "Please provide all required values";
+                }
+                else
+                {
+                    string ctstopstatus = DockerManager.DockerManager.StopContainer(cname);
+                    if (ctstopstatus == "Container successfully stopped.")
+                    {
+                        return "Container successfully stopped.";
+                    }
+                    else
+                    {
+                        return ctstopstatus;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
+        public static string Start(string cname)
+        {
+            try
+            {
+                if (cname == null)
+                {
+                    return "Please provide all required values";
+                }
+                else
+                {
+                    string ctstartstatus = DockerManager.DockerManager.StartContainer(cname);
+                    if (ctstartstatus == "Container successfully started.")
+                    {
+                        return "Container successfully started.";
+                    }
+                    else
+                    {
+                        return ctstartstatus;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
+        public static string Reboot(string cname)
+        {
+            try
+            {
+                if (cname == null)
+                {
+                    return "Please provide all required values";
+                }
+                else
+                {
+                    string ctrebootstatus = DockerManager.DockerManager.RebootContainer(cname);
+                    if (ctrebootstatus == "Container successfully rebooted.")
+                    {
+                        return "Container successfully rebooted.";
+                    }
+                    else
+                    {
+                        return ctrebootstatus;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
+        public static string Kill(string cname)
+        {
+            try
+            {
+                if (cname == null)
+                {
+                    return "Please provide all required values";
+                }
+                else
+                {
+                    string ctkillstatus = DockerManager.DockerManager.KillContainer(cname);
+                    if (ctkillstatus == "Container successfully killed.")
+                    {
+                        return "Container successfully killed.";
+                    }
+                    else
+                    {
+                        return ctkillstatus;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"An error occurred: {ex.Message}";
+            }
+        }
         public static async Task<string> New(string webserver_port, string ssh_user, string ssh_password, string mysql_port, string ssh_port, string daemon_port, string daemon_key, string daemon_domain, string img_name)
         {
             try

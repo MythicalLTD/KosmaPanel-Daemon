@@ -131,6 +131,120 @@ namespace KosmaPanel.Managers.DockerManager
             }
         }
 
+        public static string StopContainer(string cname) {
+            try
+            {
+                string command = $"docker stop {cname}";
+
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = "/bin/bash";
+                    process.StartInfo.Arguments = $"-c \"{command}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (process.ExitCode == 0)
+                    {
+                        Program.logger.Log(LogType.Info, $"[{cname}] Container successfully stopped.");
+                        return "Container successfully stopped.";
+                    }
+                    else
+                    {
+                        Program.logger.Log(LogType.Error, $"[{cname}] Error while stopping the container: {error}");
+                        return $"Error while stopping the container: {cname}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"[{cname}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
+        public static string StartContainer(string cname) {
+            try
+            {
+                string command = $"docker start {cname}";
+
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = "/bin/bash";
+                    process.StartInfo.Arguments = $"-c \"{command}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (process.ExitCode == 0)
+                    {
+                        Program.logger.Log(LogType.Info, $"[{cname}] Container successfully started.");
+                        return "Container successfully started.";
+                    }
+                    else
+                    {
+                        Program.logger.Log(LogType.Error, $"[{cname}] Error while starting the container: {error}");
+                        return $"Error while starting the container: {cname}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"[{cname}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
+        public static string RebootContainer(string cname) {
+            try
+            {
+                string command = $"docker restart {cname}";
+
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = "/bin/bash";
+                    process.StartInfo.Arguments = $"-c \"{command}\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (process.ExitCode == 0)
+                    {
+                        Program.logger.Log(LogType.Info, $"[{cname}] Container successfully rebooted.");
+                        return "Container successfully rebooted.";
+                    }
+                    else
+                    {
+                        Program.logger.Log(LogType.Error, $"[{cname}] Error while starting the container: {error}");
+                        return $"Error while starting the container: {cname}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.logger.Log(LogType.Error, $"[{cname}] An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
+            }
+        }
+
         public async Task<IList<ContainerListResponse>> ListContainersAsync()
         {
             var containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters()

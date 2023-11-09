@@ -150,7 +150,151 @@ namespace KosmaPanel.Services.WebServerService
                             {
                                 var webspaceResponse = new
                                 {
-                                    message = "Failed to create the website",
+                                    message = "Failed to delete the website",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            break;
+                        }
+                    case "webspaces/power/shutdown":
+                        {
+                            string daemon_domain = request.Query["domain"]!;
+                            string wb = WebSpaceManager.Stop(daemon_domain);
+                            if (wb == "Container successfully stopped.")
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "We just stopped the website!",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.OK;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            else
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "Failed to stop the website.",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            break;
+                        }
+                    case "webspaces/power/start":
+                        {
+                            string daemon_domain = request.Query["domain"]!;
+                            string wb = WebSpaceManager.Start(daemon_domain);
+                            if (wb == "Container successfully started.")
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "We just started the website!",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.OK;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            else
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "Failed to start the website.",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            break;
+                        }
+                    case "webspaces/power/reboot":
+                        {
+                            string daemon_domain = request.Query["domain"]!;
+                            string wb = WebSpaceManager.Reboot(daemon_domain);
+                            if (wb == "Container successfully rebooted.")
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "We just rebooted the website!",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.OK;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            else
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "Failed to reboot the website.",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            break;
+                        }
+                    case "webspaces/power/kill":
+                        {
+                            string daemon_domain = request.Query["domain"]!;
+                            string wb = WebSpaceManager.Kill(daemon_domain);
+                            if (wb == "Container successfully killed.")
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "We just killed the website!",
+                                    error = wb
+                                };
+
+                                var webspaceJson = JsonConvert.SerializeObject(webspaceResponse);
+                                var shutdownBuffer = Encoding.UTF8.GetBytes(webspaceJson);
+                                response.StatusCode = (int)HttpStatusCode.OK;
+                                response.ContentType = "application/json";
+                                response.ContentLength = shutdownBuffer.Length;
+                                await response.Body.WriteAsync(shutdownBuffer, 0, shutdownBuffer.Length);
+                            }
+                            else
+                            {
+                                var webspaceResponse = new
+                                {
+                                    message = "Failed to kill the website.",
                                     error = wb
                                 };
 
