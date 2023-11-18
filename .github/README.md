@@ -17,7 +17,7 @@ Daemon is KosmaPanels's server control plane, built for the rapidly changing web
 
 ## Support
 
-For support, discord server: [discord.gg/mythicalsystems](https://discord.gg/eWUYVEZVxz)
+For support, discord server: [discord.gg/mythicalsystems](https://discord.gg/3FWyugpznc)
 
 
 ## Authors
