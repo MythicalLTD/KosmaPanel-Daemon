@@ -47,7 +47,7 @@ namespace KosmaPanel.Helpers.WebServerHelper
                 await BashHelper.BashHelper.ExecuteCommand(disbaleCommandE);
                 await BashHelper.BashHelper.ExecuteCommand(disbaleCommandA);
                 Program.logger.Log(LogType.Info, $"[{domain}] We deleted the nginx file.");
-                return "We created the nginx file.";
+                return "We deleted the nginx file.";
             }
             catch (Exception ex)
             {

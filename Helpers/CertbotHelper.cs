@@ -10,7 +10,7 @@ namespace KosmaPanel.Helpers.CertbotHelper
         {
             try
             {
-                string command = $"sudo certbot delete --cert-name {domain}";
+                string command = $"sudo certbot delete --non-interactive --cert-name {domain}";
 
                 using (var process = new Process())
                 {
@@ -58,7 +58,7 @@ namespace KosmaPanel.Helpers.CertbotHelper
                 }
                 else
                 {
-                    string command = $"certbot certonly --nginx --non-interactive --agree-tos --register-unsafely-without-email -d {domain}";
+                    string command = $"certbot certonly --nginx --agree-tos --non-interactive --register-unsafely-without-email -d {domain}";
 
                     using (var process = new Process())
                     {
@@ -107,7 +107,7 @@ namespace KosmaPanel.Helpers.CertbotHelper
                 }
                 else
                 {
-                    string command = $"certbot renew --cert-name {domain}";
+                    string command = $"certbot renew --non-interactive --cert-name {domain}";
 
                     using (var process = new Process())
                     {

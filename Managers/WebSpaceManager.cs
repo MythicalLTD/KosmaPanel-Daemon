@@ -1,6 +1,6 @@
-using System;
 using KosmaPanel.Helpers.CertbotHelper;
 using KosmaPanel.Helpers.WebServerHelper;
+using KosmaPanel.Services.WebServerService;
 
 namespace KosmaPanel.Managers.WebSpaceManager
 {
@@ -18,7 +18,7 @@ namespace KosmaPanel.Managers.WebSpaceManager
                 else
                 {
                     string wbhelper = await WebServerHelper.Remove(cname);
-                    if (wbhelper == "We created the nginx file.")
+                    if (wbhelper == "We deleted the nginx file.")
                     {
                         string webserverstauts = WebServerHelper.Restart();
                         if (webserverstauts == "WebServer successfully restarted.")
@@ -26,23 +26,16 @@ namespace KosmaPanel.Managers.WebSpaceManager
                             string certbotstatus = CertbotHelper.DeleteCertificate(cname);
                             if (certbotstatus == "Certificate successfully deleted.")
                             {
-                                string killctstatus = DockerManager.DockerManager.KillContainer(cname);
-                                if (killctstatus == "Container successfully killed.")
+                                string rmctstatus = DockerManager.DockerManager.DeleteContainer(cname);
+                                if (rmctstatus == "Container successfully deleted.")
                                 {
-                                    string rmctstatus = DockerManager.DockerManager.DeleteContainer(cname);
-                                    if (rmctstatus == "Container successfully deleted.")
-                                    {
-                                        return "We just deleted the website!";
-                                    }
-                                    else
-                                    {
-                                        return rmctstatus;
-                                    }
+                                    return "We just deleted the website!";
                                 }
                                 else
                                 {
-                                    return killctstatus;
+                                    return rmctstatus;
                                 }
+
                             }
                             else
                             {
@@ -203,11 +196,14 @@ namespace KosmaPanel.Managers.WebSpaceManager
                                     }
                                     else
                                     {
+                                        DockerManager.DockerManager.DeleteContainer(daemon_domain);
+                                        await WebServerHelper.Remove(daemon_domain);
                                         return webserverstauts;
                                     }
                                 }
                                 else
                                 {
+                                    DockerManager.DockerManager.DeleteContainer(daemon_domain);
                                     return webserverconfig;
                                 }
                             }

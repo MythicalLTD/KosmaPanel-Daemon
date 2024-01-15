@@ -96,7 +96,7 @@ namespace KosmaPanel.Managers.DockerManager
         {
             try
             {
-                string command = $"docker rm {cname}";
+                string command = $"docker rm -f {cname}";
 
                 using (var process = new Process())
                 {
